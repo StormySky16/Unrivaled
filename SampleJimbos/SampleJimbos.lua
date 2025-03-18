@@ -154,27 +154,28 @@ local jokers = {
 
         calculate = function(self, context)
             if self.debuff then return nil end
+            local current_reps = self.ability.extra.repetitions
+            local reset = true
             if context.cardarea == G.play and context.repetition and not context.repetition_only then
                 local current_hand = G.GAME.current_round.current_hand.chip_total
-                local reset = true
                 if true then
-                    reset =  false
+                    reset = false
+                    current_reps = self.ability.extra.repetitions + (1 / #context.scoring_hand)
+                    self.ability.extra.repetitions = current_reps
                     return {
                         play_sound('again'),
                         message = localize{'k_again_ex'},
-                        repetitions = self.ability.extra.repetitions + 1,
+                        repetitions = self.ability.extra.repetitions,
                         card = self
                     }
                 end
-                if reset then
-                    if self.ability.extra.repetitions > 0 then
-                        self.ability.extra.repetitions = 0
-                        return {
-                            card = self,
-                            message = localize('k_reset')
-                        }
-                    end
-                end
+            end
+            if not reset and self.ability.extra.repetitions > 0 then
+                self.ability.extra.repetitions = 0
+                return {
+                    card = self,
+                    message = localize('k_reset')
+                }
             end
         end,
 
