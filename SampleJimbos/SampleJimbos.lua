@@ -140,7 +140,7 @@ local jokers = {
             "of the required chips.",
             "{C:inactive}(Currently {C:chips}+#1#{C:inactive} Retrigger(s))"
         },
-        config = { extra = { repetitions = 0 } },
+        config = { extra = { repetitions = 0, most_recent_hand = 0 } },
         pos = { x = 0, y = 0 },
         rarity = 3,
         cost = 10,
@@ -155,32 +155,58 @@ local jokers = {
         calculate = function(self, context)
             if self.debuff then return nil end
             local current_reps = self.ability.extra.repetitions
-            local reset = true
+            local current_hand = self.ability.extra.most_recent_hand
             if context.cardarea == G.play and context.repetition and not context.repetition_only then
-                local current_hand = G.GAME.current_round.current_hand.chip_total
-                if true then
-                    reset = false
-                    current_reps = self.ability.extra.repetitions + (1 / #context.scoring_hand)
-                    self.ability.extra.repetitions = current_reps
-                    return {
-                        play_sound('again'),
-                        message = localize{'k_again_ex'},
-                        repetitions = self.ability.extra.repetitions,
-                        card = self
-                    }
-                end
-            end
-            if not reset and self.ability.extra.repetitions > 0 then
-                self.ability.extra.repetitions = 0
+                --local current_hand = G.GAME.current_round.current_hand.chip_total
+                -- G.GAME.chips
+                print('in cardarea, most_recent_hand: ' .. current_hand)
+                print('retriggering')
                 return {
-                    card = self,
-                    message = localize('k_reset')
+                    play_sound('again'),
+                    message = localize{'k_again_ex'},
+                    repetitions = self.ability.extra.repetitions,
+                    card = self
                 }
             end
+            if context.final_scoring_step then
+                local current_hand = hand_chips * mult
+                print('in final scoring')
+                print('current_hand: ' .. current_hand)
+                print('blind chips: ' .. G.GAME.blind.chips)
+                return {
+                    most_recent_hand = current_hand,
+                    card = self
+                }
+            end
+             
+            -- if context.after then print('context.after is true') end
+            -- if reset then print('reset is true') end
+            -- if not reset then print('reset is false') end
+            --if self.ability.extra.repetitions > 0 then print('repetitions:', self.ability.extra.repetitions) end
+
+            -- if context.after and not context.individual then
+            --     self.ability.extra.repetitions = 0
+            --     if current_hand / G.GAME.blind.chips <= 0.80 then
+            --         self.ability.extra.repetitions = 0
+            --         return {
+            --             card = self,
+            --             message = localize('k_reset')
+            --         }  
+            --     else 
+            --         print('again!')
+            --         self.ability.extra.repetitions = self.ability.extra.repetitions + 1
+            --         return {
+            --             card = self,
+            --             message = localize{'k_again_ex'},
+            --         }  
+            --     end
+            --     print('in context after, reset true')
+                
+            -- end
         end,
 
         loc_def = function(self)
-            return { self.ability.extra.repetitions }
+            return { self.ability.extra.repetitions, self.ability.extra.most_recent_hand }
         end
     },
 }
