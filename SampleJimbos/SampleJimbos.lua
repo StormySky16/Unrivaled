@@ -163,11 +163,11 @@ SMODS.Joker {
     calculate = function(self, card, context)
         -- local current_reps = card.ability.extra.repetitions
         -- local current_hand = card.ability.extra.most_recent_hand
-        if context.joker_main then
-			return {
-				message = localize { type = 'variable', key = 'a_chips', vars = { card.ability.extra.repetitions } }
-			}
-		end
+        -- if context.joker_main then
+		-- 	return {
+		-- 		message = localize { type = 'variable', key = 'a_chips', vars = { card.ability.extra.repetitions } }
+		-- 	}
+		-- end
         if context.cardarea == G.play and context.repetition and not context.repetition_only then
             -- local current_hand = G.GAME.current_round.current_hand.chip_total
             -- G.GAME.chips
@@ -178,7 +178,6 @@ SMODS.Joker {
             -- end
             -- print('retriggering')
             return {
-                play_sound('Again!_again'),
                 message = localize{'k_again_ex'},
                 repetitions = card.ability.extra.repetitions,
                 card = card
@@ -208,6 +207,7 @@ SMODS.Joker {
             -- else 
             --     print('in context.after, current_hand == nil')
             -- end
+            -- TODO: add nil check for naneinf safety
             if card.ability.extra.most_recent_hand / G.GAME.blind.chips <= 0.80 then
                 card.ability.extra.repetitions = 0
                 return {
@@ -218,8 +218,10 @@ SMODS.Joker {
                 print('again!')
                 card.ability.extra.repetitions = card.ability.extra.repetitions + 1
                 return {
+                    --need specific case for plasma deck
+                    play_sound('Again!_again'),
                     card = card,
-                    message = localize{'k_again_ex'},
+                    message = 'Again!',
                 }  
             end
             --print('in context after, reset true')
