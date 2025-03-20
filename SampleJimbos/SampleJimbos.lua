@@ -155,19 +155,15 @@ SMODS.Joker {
     rarity = 3,
     pos = { x = 3, y = 1 },
     cost = 10,
+    blueprint_compat = true,
+    eternal_compat = true,
+    unlocked = true,
 
     loc_vars =  function(self, info_queue, card) 
         return { vars = {card.ability.extra.repetitions, card.ability.extra.most_recent_hand} }
     end,
 
     calculate = function(self, card, context)
-        -- local current_reps = card.ability.extra.repetitions
-        -- local current_hand = card.ability.extra.most_recent_hand
-        -- if context.joker_main then
-		-- 	return {
-		-- 		message = localize { type = 'variable', key = 'a_chips', vars = { card.ability.extra.repetitions } }
-		-- 	}
-		-- end
         if context.cardarea == G.play and context.repetition and not context.repetition_only then
             -- local current_hand = G.GAME.current_round.current_hand.chip_total
             -- G.GAME.chips
@@ -184,15 +180,27 @@ SMODS.Joker {
             }
         end
         if context.final_scoring_step then
-            local current_hand = hand_chips * mult
-            print('in final scoring')
-            print('current_hand: ' .. current_hand)
-            print('blind chips: ' .. G.GAME.blind.chips)
-            card.ability.extra.most_recent_hand = current_hand
-            return {
-                most_recent_hand = current_hand,
-                card = card
-            }
+            if G.GAME.selected_back.name == 'Plasma Deck' then 
+                local current_hand = ((hand_chips + mult) / 2) ^ 2
+                print('in final scoring')
+                print('current_hand: ' .. current_hand)
+                print('blind chips: ' .. G.GAME.blind.chips)
+                card.ability.extra.most_recent_hand = current_hand
+                return {
+                    most_recent_hand = current_hand,
+                    card = card
+                }
+            else 
+                local current_hand = hand_chips * mult
+                print('in final scoring')
+                print('current_hand: ' .. current_hand)
+                print('blind chips: ' .. G.GAME.blind.chips)
+                card.ability.extra.most_recent_hand = current_hand
+                return {
+                    most_recent_hand = current_hand,
+                    card = card
+                }
+            end
         end
             
         -- if context.after then print('context.after is true') end
@@ -208,21 +216,25 @@ SMODS.Joker {
             --     print('in context.after, current_hand == nil')
             -- end
             -- TODO: add nil check for naneinf safety
-            if card.ability.extra.most_recent_hand / G.GAME.blind.chips <= 0.80 then
-                card.ability.extra.repetitions = 0
-                return {
-                    card = card,
-                    message = localize('k_reset')
-                }  
-            else 
-                print('again!')
-                card.ability.extra.repetitions = card.ability.extra.repetitions + 1
-                return {
-                    --need specific case for plasma deck
-                    play_sound('Again!_again'),
-                    card = card,
-                    message = 'Again!',
-                }  
+            if card.ability.extra.most_recent_hand ~= nil then
+                if card.ability.extra.most_recent_hand / G.GAME.blind.chips <= 0.80 then
+                    card.ability.extra.repetitions = 0
+                    return {
+                        card = card,
+                        message = localize('k_reset')
+                    }  
+                else 
+                    print('again!')
+                    card.ability.extra.repetitions = card.ability.extra.repetitions + 1
+                    return {
+                        --need specific case for plasma deck
+                        play_sound('Again!_again'),
+                        card = card,
+                        message = 'Again!',
+                    }  
+                end
+            else
+                print('most_recent_hand == nil')
             end
             --print('in context after, reset true')
             
