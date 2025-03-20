@@ -159,7 +159,7 @@ SMODS.Joker {
     eternal_compat = true,
     unlocked = true,
 
-    loc_vars =  function(self, info_queue, card) 
+    loc_vars =  function(self, info_queue, card)
         return { vars = {card.ability.extra.repetitions, card.ability.extra.most_recent_hand} }
     end,
 
@@ -180,21 +180,21 @@ SMODS.Joker {
             }
         end
         if context.final_scoring_step then
-            if G.GAME.selected_back.name == 'Plasma Deck' then 
+            if G.GAME.selected_back.name == 'Plasma Deck' then
                 local current_hand = ((hand_chips + mult) / 2) ^ 2
-                print('in final scoring')
-                print('current_hand: ' .. current_hand)
-                print('blind chips: ' .. G.GAME.blind.chips)
+                -- print('in final scoring')
+                -- print('current_hand: ' .. current_hand)
+                -- print('blind chips: ' .. G.GAME.blind.chips)
                 card.ability.extra.most_recent_hand = current_hand
                 return {
                     most_recent_hand = current_hand,
                     card = card
                 }
-            else 
+            else
                 local current_hand = hand_chips * mult
-                print('in final scoring')
-                print('current_hand: ' .. current_hand)
-                print('blind chips: ' .. G.GAME.blind.chips)
+                -- print('in final scoring')
+                -- print('current_hand: ' .. current_hand)
+                -- print('blind chips: ' .. G.GAME.blind.chips)
                 card.ability.extra.most_recent_hand = current_hand
                 return {
                     most_recent_hand = current_hand,
@@ -202,7 +202,7 @@ SMODS.Joker {
                 }
             end
         end
-            
+
         -- if context.after then print('context.after is true') end
         -- if reset then print('reset is true') end
         -- if not reset then print('reset is false') end
@@ -222,22 +222,22 @@ SMODS.Joker {
                     return {
                         card = card,
                         message = localize('k_reset')
-                    }  
-                else 
+                    }
+                else
                     print('again!')
                     card.ability.extra.repetitions = card.ability.extra.repetitions + 1
                     return {
-                        --need specific case for plasma deck
-                        play_sound('Again!_again'),
-                        card = card,
+                        message_card = card,
                         message = 'Again!',
-                    }  
+                        pitch = 1,
+                        sound = 'Again!_again'
+                    }
                 end
             else
                 print('most_recent_hand == nil')
             end
             --print('in context after, reset true')
-            
+
         end
     end
 }
@@ -300,7 +300,7 @@ SMODS.Joker {
 --             if context.joker_main and context.cardarea == G.jokers and context.scoring_name then
 --                 local current_hand_times = (G.GAME.hands[context.scoring_name].played or 0) -- how many times has the player played the current type of hand. (pair, two pair. etc..)
 --                 local current_xmult = 1 + (current_hand_times * self.ability.extra.x_mult)
-                
+
 --                 return {
 --                     message = localize{type='variable',key='a_xmult',vars={current_xmult}},
 --                     colour = G.C.RED,
@@ -353,5 +353,5 @@ SMODS.Joker {
 --             return { }
 --         end
 --     },
-    
+
 -- }
