@@ -149,12 +149,14 @@ SMODS.Joker {
     loc_txt = {
         name = "Winter Joker",
         text = {
+            "Retrigger all scoring cards",
+            "in played hand {C:blue}#1#{} time(s)",
             "This Joker gains {C:attention}1{} retrigger",
-            "for all cards played",
-            "per consecutive hand",
-            "that scores at least {C:attention}80%{}",
-            "of the required chips.",
-            "{C:inactive}(Currently {C:blue}+#1#{C:inactive} Retrigger(s))"
+            "for every {C:attention}Boss Blind{} defeated.",
+            "Retrigger amount resets upon",
+            "playing a hand that does not",
+            "score at least {C:attention}80%{}",
+            "of the required chips."
         }
     },
     config = { extra = { repetitions = 0, most_recent_hand = 0 } },
@@ -236,7 +238,7 @@ SMODS.Joker {
         -- if not reset then print('reset is false') end
         --if self.ability.extra.repetitions > 0 then print('repetitions:', self.ability.extra.repetitions) end
 
-        if context.after and not context.individual then
+        if context.after and not context.individual and not context.blueprint then
             --card.ability.extra.repetitions = 0
             local current_hand = card.ability.extra.most_recent_hand
             if current_hand ~= nil then
@@ -257,13 +259,13 @@ SMODS.Joker {
                             sound = 'Again!_outofenergy'
                         }
                     end
-                else 
+                elseif G.GAME.blind.boss then
                     card.ability.extra.repetitions = card.ability.extra.repetitions + 1
                     if card.ability.extra.repetitions <= 1 then
                         print('Armed and Dangerous!')
                         return {
                             message_card = card,
-                            message = 'Again!',
+                            message = 'Armed and Dangerous!',
                             pitch = 1,
                             volume = 2.5,
                             sound = 'Again!_armedanddangerous'
