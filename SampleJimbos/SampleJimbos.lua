@@ -1,7 +1,7 @@
 --- STEAMODDED HEADER
 --- MOD_NAME: Again!
 --- MOD_ID: Again!
---- MOD_AUTHOR: [StormySky16, BaseFrom: Rare_K]
+--- MOD_AUTHOR: [StormySky16]
 --- MOD_DESCRIPTION: Winter Joker (Soldier) Retrigger Mod
 --- MOD_VERSION: 1.0.0
 --- PREFIX: Again!
@@ -20,6 +20,12 @@
 
 SMODS.Sound ({
     key = "again", path = "again.ogg"
+})  
+SMODS.Sound ({
+    key = "outofenergy", path = "outofenergy.ogg",
+})
+SMODS.Sound ({
+    key = "armedanddangerous", path = "armedanddangerous.ogg"
 })
 
 -- you can have shared helper functions
@@ -164,6 +170,16 @@ SMODS.Joker {
     end,
 
     calculate = function(self, card, context)
+        if context.setting_blind then
+            print('in context setting blind')
+            local current_hand = 0
+            card.ability.extra.most_recent_hand = current_hand
+            print('most_recent_hand: '.. card.ability.extra.most_recent_hand)
+            return {
+                most_recent_hand = current_hand,
+                card = card
+            }
+        end
         if context.cardarea == G.play and context.repetition and not context.repetition_only then
             -- local current_hand = G.GAME.current_round.current_hand.chip_total
             -- G.GAME.chips
@@ -182,9 +198,9 @@ SMODS.Joker {
         if context.final_scoring_step then
             if G.GAME.selected_back.name == 'Plasma Deck' then
                 local current_hand = ((hand_chips + mult) / 2) ^ 2
-                -- print('in final scoring')
-                -- print('current_hand: ' .. current_hand)
-                -- print('blind chips: ' .. G.GAME.blind.chips)
+                print('in final scoring')
+                print('current_hand: ' .. current_hand)
+                print('blind chips: ' .. G.GAME.blind.chips)
                 card.ability.extra.most_recent_hand = current_hand
                 return {
                     most_recent_hand = current_hand,
@@ -192,9 +208,9 @@ SMODS.Joker {
                 }
             else
                 local current_hand = hand_chips * mult
-                -- print('in final scoring')
-                -- print('current_hand: ' .. current_hand)
-                -- print('blind chips: ' .. G.GAME.blind.chips)
+                print('in final scoring')
+                print('current_hand: ' .. current_hand)
+                print('blind chips: ' .. G.GAME.blind.chips)
                 card.ability.extra.most_recent_hand = current_hand
                 return {
                     most_recent_hand = current_hand,
@@ -202,7 +218,16 @@ SMODS.Joker {
                 }
             end
         end
-
+        if context.debuffed_hand then
+            print('in context debuffed hand')
+            local current_hand = 0
+            card.ability.extra.most_recent_hand = current_hand
+            print('most_recent_hand: '.. card.ability.extra.most_recent_hand)
+            return {
+                most_recent_hand = current_hand,
+                card = card
+            }
+        end
         -- if context.after then print('context.after is true') end
         -- if reset then print('reset is true') end
         -- if not reset then print('reset is false') end
@@ -210,28 +235,45 @@ SMODS.Joker {
 
         if context.after and not context.individual then
             --card.ability.extra.repetitions = 0
-            -- if current_hand ~= nil then
-            --     print('in context.after, current hand: ' .. current_hand)
-            -- else 
-            --     print('in context.after, current_hand == nil')
-            -- end
+            local current_hand = card.ability.extra.most_recent_hand
+            if current_hand ~= nil then
+                print('in context.after, current hand: ' .. current_hand)
+            else 
+                print('in context.after, current_hand == nil')
+            end
             -- TODO: add nil check for naneinf safety
             if card.ability.extra.most_recent_hand ~= nil then
-                if card.ability.extra.most_recent_hand / G.GAME.blind.chips <= 0.80 then
-                    card.ability.extra.repetitions = 0
-                    return {
-                        card = card,
-                        message = localize('k_reset')
-                    }
-                else
-                    print('again!')
+                if card.ability.extra.most_recent_hand / G.GAME.blind.chips < 0.80 then
+                    if card.ability.extra.repetitions >= 1 then
+                        card.ability.extra.repetitions = 0
+                        return {
+                            card = card,
+                            message = localize('k_reset'),
+                            pitch = 1,
+                            volume = 1,
+                            sound = 'Again!_outofenergy'
+                        }
+                    end
+                else 
                     card.ability.extra.repetitions = card.ability.extra.repetitions + 1
-                    return {
-                        message_card = card,
-                        message = 'Again!',
-                        pitch = 1,
-                        sound = 'Again!_again'
-                    }
+                    if card.ability.extra.repetitions <= 1 then
+                        print('Armed and Dangerous!')
+                        return {
+                            message_card = card,
+                            message = 'Again!',
+                            pitch = 1,
+                            volume = 1,
+                            sound = 'Again!_armedanddangerous'
+                        }
+                    end
+                        print('again!')
+                        return {
+                            message_card = card,
+                            message = 'Again!',
+                            pitch = 1,
+                            volume = 1,
+                            sound = 'Again!_again'
+                        }
                 end
             else
                 print('most_recent_hand == nil')
