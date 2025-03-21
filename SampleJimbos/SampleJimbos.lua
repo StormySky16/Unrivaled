@@ -168,7 +168,7 @@ SMODS.Joker {
     loc_vars =  function(self, info_queue, card)
         return { vars = {card.ability.extra.repetitions, card.ability.extra.most_recent_hand} }
     end,
-
+    
     calculate = function(self, card, context)
         if context.setting_blind then
             print('in context setting blind')
@@ -250,7 +250,7 @@ SMODS.Joker {
                             card = card,
                             message = localize('k_reset'),
                             pitch = 1,
-                            volume = 1,
+                            volume = 2.5,
                             sound = 'Again!_outofenergy'
                         }
                     end
@@ -262,7 +262,7 @@ SMODS.Joker {
                             message_card = card,
                             message = 'Again!',
                             pitch = 1,
-                            volume = 1,
+                            volume = 2.5,
                             sound = 'Again!_armedanddangerous'
                         }
                     end
@@ -271,7 +271,7 @@ SMODS.Joker {
                             message_card = card,
                             message = 'Again!',
                             pitch = 1,
-                            volume = 1,
+                            volume = 2.5,
                             sound = 'Again!_again'
                         }
                 end
