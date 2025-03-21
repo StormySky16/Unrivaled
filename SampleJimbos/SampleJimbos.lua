@@ -170,6 +170,9 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
+        -- local eval = function(card) return (card.ability.extra.repetitions >= 1 and context.hand_drawn) end
+        -- juice_card_until(card, eval, true)
+
         if context.setting_blind then
             print('in context setting blind')
             local current_hand = 0
