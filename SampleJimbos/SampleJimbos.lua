@@ -163,7 +163,7 @@ SMODS.Joker {
     cost = 10,
     blueprint_compat = true,
     eternal_compat = true,
-    unlocked = true,
+    -- unlocked = true,
 
     loc_vars =  function(self, info_queue, card)
         return { vars = {card.ability.extra.repetitions, card.ability.extra.most_recent_hand} }
