@@ -175,7 +175,14 @@ SMODS.Joker {
     calculate = function(self, card, context)
         -- local eval = function(card) return (card.ability.extra.repetitions >= 1 and context.hand_drawn) end
         -- juice_card_until(card, eval, true)
-
+        local spriteCheck = function()
+            if card.ability.extra.repetitions > 0 then 
+                card.children.center:set_sprite_pos({x = 1, y = 0})
+            else 
+                card.children.center:set_sprite_pos({x = 0, y = 0})
+            end
+        end
+        spriteCheck()
         if context.setting_blind then
             print('in context setting blind')
             local current_hand = 0
