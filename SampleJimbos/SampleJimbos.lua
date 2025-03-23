@@ -248,7 +248,7 @@ SMODS.Joker {
             end
             -- TODO: add nil check for naneinf safety
             if card.ability.extra.most_recent_hand ~= nil then
-                if card.ability.extra.most_recent_hand / G.GAME.blind.chips < 0.80 then
+                if card.ability.extra.most_recent_hand / G.GAME.blind.chips < 0.80 and G.GAME.blind.boss then
                     if card.ability.extra.repetitions >= 1 then
                         card.ability.extra.repetitions = 0
                         return {
