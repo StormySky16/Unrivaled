@@ -6,17 +6,17 @@
 --- MOD_VERSION: 1.0.0
 --- PREFIX: Again!
 
--- --Creates an atlas for cards to use
--- SMODS.Atlas {
--- 	-- Key for code to find it with
--- 	key = "Again!",
--- 	-- The name of the file, for the code to pull the atlas from
--- 	path = "ModdedVanilla.png",
--- 	-- Width of each sprite in 1x size
--- 	px = 71,
--- 	-- Height of each sprite in 1x size
--- 	py = 95
--- }
+--Creates an atlas for cards to use
+SMODS.Atlas {
+	-- Key for code to find it with
+	key = "Again!",
+	-- The name of the file, for the code to pull the atlas from
+	path = "ModdedVanilla.png",
+	-- Width of each sprite in 1x size
+	px = 71,
+	-- Height of each sprite in 1x size
+	py = 95
+}
 
 SMODS.Sound ({
     key = "again", path = "again.ogg"
@@ -145,9 +145,9 @@ end
 -- }
 
 SMODS.Joker {
-    key = 'winter_joker',
+    key = 'winter_soldier',
     loc_txt = {
-        name = "Winter Joker",
+        name = "Winter Soldier",
         text = {
             "Retrigger all scoring cards",
             "in played hand {C:blue}#1#{} time(s)",
@@ -161,11 +161,12 @@ SMODS.Joker {
     },
     config = { extra = { repetitions = 0, most_recent_hand = 0 } },
     rarity = 3,
-    pos = { x = 3, y = 1 },
+    atlas = 'Again!',
+    pos = { x = 0, y = 0 },
     cost = 10,
     blueprint_compat = true,
     eternal_compat = true,
-    -- unlocked = true,
+    unlocked = true,
 
     loc_vars =  function(self, info_queue, card)
         return { vars = {card.ability.extra.repetitions, card.ability.extra.most_recent_hand} }
