@@ -185,7 +185,7 @@ SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
     cost = 10,
     blueprint_compat = true, --potentially false for future balancing
     eternal_compat = true,
-    unlocked = true,
+    --unlocked = true,
 
     loc_vars =  function(self, info_queue, card)
         return { vars = {card.ability.extra.repetitions, card.ability.extra.extra_repetitions, card.ability.extra.threshold, card.ability.extra.most_recent_hand} }
@@ -277,6 +277,7 @@ SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
             if card.ability.extra.most_recent_hand ~= nil then
                 print('threshold/100: ' .. (card.ability.extra.threshold/100))
                 if card.ability.extra.most_recent_hand / G.GAME.blind.chips < (card.ability.extra.threshold/100) then
+                    print('less than threshold')
                     if card.ability.extra.repetitions >= 1 then
                         card.ability.extra.repetitions = 0
                         return {
@@ -317,6 +318,38 @@ SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
     end
 }
 
+
+SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
+    key = 'black_panther',
+    loc_txt = {
+        name = "Black Panther",
+        text = {
+            "Played Kings of {C:Spades}Spades{}",
+            "each give {C:Mult}x#1#{} mult when scored"
+        }
+    },
+    config = { extra = { x_mult = 2 } },
+    rarity = "Unrivaled_heroic",
+    atlas = 'Unrivaled',
+    pos = { x = 2, y = 0 },
+    cost = 8,
+    blueprint_compat = true, 
+    eternal_compat = true,
+    --unlocked = true,
+    
+    loc_vars =  function(self, info_queue, card)
+        return { vars = {card.ability.extra.x_mult} }
+    end,
+    
+    calculate = function(self, card, context)
+        if context.cardarea == G.play and context.individual and context.other_card:get_id() == 13 and context.other_card:is_suit("Spades")then
+            return {
+                x_mult = card.ability.extra.x_mult,
+                card = card
+            }
+        end
+    end
+}
 -- function return_JokerValues() -- not used, just here to demonstrate how you could return values from a joker
 --     if context.joker_main and context.cardarea == G.jokers then
 --         return {
