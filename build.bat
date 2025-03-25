@@ -1,6 +1,6 @@
 @echo off
 
-set name=SampleJimbos
+set name=Unrivaled
 
 xcopy /s /y .\%name%\ %Appdata%\Balatro\Mods\%name%\*
 
