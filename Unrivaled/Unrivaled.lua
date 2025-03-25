@@ -163,32 +163,32 @@ end
 -- 	end
 -- }
 
-SMODS.Joker {
+SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
     key = 'winter_soldier',
     loc_txt = {
         name = "Winter Soldier",
         text = {
             "Retrigger all scoring cards",
             "in played hand {C:blue}#1#{} time(s)",
-            "This Joker gains {C:attention}1{} retrigger",
+            "This Joker gains {C:attention}#2#{} retrigger",
             "for every {C:attention}Boss Blind{} defeated.",
             "Retrigger amount resets upon",
             "playing a hand that does not",
-            "score at least {C:attention}80%{}",
+            "score at least {C:attention}#3#%{}",
             "of the required chips."
         }
     },
-    config = { extra = { repetitions = 0, most_recent_hand = 0 } },
+    config = { extra = { repetitions = 0, extra_repetitions = 1, threshold = 80, most_recent_hand = 0 } },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 0, y = 0 },
     cost = 10,
-    blueprint_compat = true,
+    blueprint_compat = true, --potentially false for future balancing
     eternal_compat = true,
     unlocked = true,
 
     loc_vars =  function(self, info_queue, card)
-        return { vars = {card.ability.extra.repetitions, card.ability.extra.most_recent_hand} }
+        return { vars = {card.ability.extra.repetitions, card.ability.extra.extra_repetitions, card.ability.extra.threshold, card.ability.extra.most_recent_hand} }
     end,
     
     calculate = function(self, card, context)
@@ -275,7 +275,8 @@ SMODS.Joker {
             end
             -- TODO: add nil check for naneinf safety
             if card.ability.extra.most_recent_hand ~= nil then
-                if card.ability.extra.most_recent_hand / G.GAME.blind.chips < 0.80 then
+                print('threshold/100: ' .. (card.ability.extra.threshold/100))
+                if card.ability.extra.most_recent_hand / G.GAME.blind.chips < (card.ability.extra.threshold/100) then
                     if card.ability.extra.repetitions >= 1 then
                         card.ability.extra.repetitions = 0
                         return {
@@ -287,7 +288,7 @@ SMODS.Joker {
                         }
                     end
                 elseif G.GAME.blind.boss then
-                    card.ability.extra.repetitions = card.ability.extra.repetitions + 1
+                    card.ability.extra.repetitions = card.ability.extra.repetitions + card.ability.extra.extra_repetitions
                     if card.ability.extra.repetitions <= 1 then
                         print('Armed and Dangerous!')
                         return {
