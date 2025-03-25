@@ -17,6 +17,25 @@ SMODS.Atlas {
 	-- Height of each sprite in 1x size
 	py = 95
 }
+SMODS.Rarity {
+    key = 'heroic',
+    loc_txt = { name = 'Heroic' },
+    badge_colour = HEX('f4d12b'),
+    
+    default_weight = 0.15,
+    
+    pools = {
+        ["Joker"] = true
+    },
+    
+    get_weight = function(self, weight, object_type)
+        return 0.15
+    end
+}
+
+SMODS.ObjectTypes["Joker"].rarities[1].weight = 0.60
+SMODS.ObjectTypes["Joker"].rarities[2].weight = 0.20
+SMODS.ObjectTypes["Joker"].rarities[3].weight = 0.05
 
 SMODS.Sound ({
     key = "again", path = "again.ogg"
@@ -160,7 +179,7 @@ SMODS.Joker {
         }
     },
     config = { extra = { repetitions = 0, most_recent_hand = 0 } },
-    rarity = 3,
+    rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 0, y = 0 },
     cost = 10,
