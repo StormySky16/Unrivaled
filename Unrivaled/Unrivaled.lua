@@ -29,7 +29,7 @@ SMODS.Rarity {
     },
     
     get_weight = function(self, weight, object_type)
-        return 0.15
+        return weight
     end
 }
 
@@ -352,13 +352,14 @@ SMODS.Joker {
     
     calculate = function(self, card, context)
         if context.before and not context.individual and not context.blueprint then
-            print("context: ")
-            print(context)
+            --print("context: ")
+            --print(context)
             print('context before, BP')
             for i = 1, #context.scoring_hand do
                 print('i: ' .. i)
-                print('card i == king: '.. tostring(context.scoring_hand[i]:get_id() == 13))
-                print('card i == spades: '.. tostring(context.scoring_hand[i]:is_suit("Spades")))
+                --These lines can crash game on debuff boss blinds due to nil
+                --print('card i == king: '.. tostring(context.scoring_hand[i]:get_id() == 13))
+                --print('card i == spades: '.. tostring(context.scoring_hand[i]:is_suit("Spades"))) 
                 if context.scoring_hand[i]:get_id() == 13 and context.scoring_hand[i]:is_suit("Spades") then
                     print(card.ability.extra.king_of_spades)
                     card.ability.extra.king_of_spades = true
@@ -388,6 +389,77 @@ SMODS.Joker {
         end
     end
 }
+
+SMODS.Joker { 
+    key = 'hela',
+    loc_txt = {
+        name = "Hela",
+        text = {
+            "When {C:attention}Blind{} is selected,",
+            "destroy Joker to the right and permanently",
+            "add {C:attention}#3#{} times its sell value to its {C:chips}chips{}.",
+            "This joker also gains {X:mult,C:white}x#4#{} Mult",
+            "when a {C:attention}playing card{} is destroyed.",
+            "{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips, {X:mult,C:white}x#2# {C:inactive} mult)"
+        }
+    },
+    config = { extra = { chips = 0, Xmult = 1, chip_gain_mod = 4, Xmult_mod = 0.25} },
+    rarity = "Unrivaled_heroic",
+    atlas = 'Unrivaled',
+    pos = { x = 3, y = 0 },
+    cost = 7,
+    blueprint_compat = true, 
+    eternal_compat = true,
+    --unlocked = true,
+    
+    loc_vars =  function(self, info_queue, card)
+        return { vars = {card.ability.extra.chips, card.ability.extra.Xmult, card.ability.extra.chip_gain_mod, card.ability.extra.Xmult_mod} }
+    end,
+    
+    calculate = function(self, card, context)
+        if context.setting_blind and not context.blueprint then
+            local my_pos = nil
+                for i = 1, #G.jokers.cards do
+                    if G.jokers.cards[i] == card then my_pos = i; break end
+                end
+                if my_pos and G.jokers.cards[my_pos+1] and not card.getting_sliced 
+                and not G.jokers.cards[my_pos+1].ability.eternal and not G.jokers.cards[my_pos+1].getting_sliced then 
+                    local sliced_card = G.jokers.cards[my_pos+1]
+                    sliced_card.getting_sliced = true
+                    G.GAME.joker_buffer = G.GAME.joker_buffer - 1
+                    G.E_MANAGER:add_event(Event({func = function()
+                                            G.GAME.joker_buffer = 0
+                                            card.ability.extra.chips = card.ability.extra.chips + sliced_card.sell_cost*card.ability.extra.chip_gain_mod
+                                            card:juice_up(0.8, 0.8)
+                                            sliced_card:start_dissolve({HEX("57ecab")}, nil, 1.6)
+                                            play_sound('slice1', 0.96+math.random()*0.08)
+                                            return true end }))
+                    card_eval_status_text(card, 'extra', nil, nil, nil,
+                                            {message = localize{type = 'variable', key = 'a_chips', 
+                                            vars = {card.ability.extra.chips+card.ability.extra.chip_gain_mod*sliced_card.sell_cost}}, 
+                                            colour = G.C.BLUE, no_juice = true}.. ' chips')
+                end
+        end
+        if context.remove_playing_cards and not context.blueprint then
+            for k, val in ipairs(context.removed) do
+                    card.ability.extra.Xmult = card.ability.extra.Xmult + card.ability.extra.Xmult_mod       
+            end
+            card_eval_status_text(card, 'extra', nil, nil, nil, 
+                                 {message = "Upgraded!",
+                                 colour = G.C.FILTER})
+        end
+
+        if context.cardarea == G.jokers and context.joker_main and (card.ability.extra.Xmult > 1 or card.ability.extra.chips > 0) then
+            return{
+                message = localize{type='variable',key='a_chips',vars={card.ability.extra.chips}}.. "chips, " ..
+                localize{type='variable',key='a_xmult',vars={card.ability.extra.Xmult}},
+                Xmult_mod = card.ability.extra.Xmult,
+                chip_mod = card.ability.extra.chips
+            }
+        end
+    end
+}
+
 -- function return_JokerValues() -- not used, just here to demonstrate how you could return values from a joker
 --     if context.joker_main and context.cardarea == G.jokers then
 --         return {
