@@ -46,6 +46,9 @@ SMODS.Sound ({
 SMODS.Sound ({
     key = "armedanddangerous", path = "armedanddangerous.ogg"
 })
+SMODS.Sound ({
+    key = "tremblebeforebast", path = "tremblebeforebast.ogg"
+})
 
 -- you can have shared helper functions
 function shakecard(self) --visually shake a card
@@ -324,11 +327,11 @@ SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
     loc_txt = {
         name = "Black Panther",
         text = {
-            "Played Kings of {C:Spades}Spades{}",
-            "each give {C:Mult}x#1#{} mult when scored"
+            "Played {C:attention}Kings{} of {C:spades}Spades{}",
+            "each give {X:mult,C:white}x#1#{} mult when scored"
         }
     },
-    config = { extra = { x_mult = 2 } },
+    config = { extra = { x_mult = 2 , king_of_spades = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 2, y = 0 },
@@ -338,14 +341,32 @@ SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
     --unlocked = true,
     
     loc_vars =  function(self, info_queue, card)
-        return { vars = {card.ability.extra.x_mult} }
+        return { vars = {card.ability.extra.x_mult, card.ability.extra.king_of_spades} }
     end,
     
     calculate = function(self, card, context)
-        if context.cardarea == G.play and context.individual and context.other_card:get_id() == 13 and context.other_card:is_suit("Spades")then
+        if context.before then
+            print('context before, BP')
+            for i = 1, #context.scoring_hand do
+                if context.scoring_hand[i]:get_id() == 13 and context.scoring_hand[i]:is_suit("Spades") then
+                    print(card.ability.extra.king_of_spades)
+                    if card.ability.extra.king_of_spades == false then
+                        card.ability.extra.king_of_spades = true
+                        print("returning bast")
+                        return{
+                            message_card = card,
+                            message =  "Tremble before Bast!",
+                            pitch = 1,
+                            volume = 2.5,
+                            sound = "Unrivaled_tremblebeforebast"
+                        }
+                    end
+                end
+            end
+        end
+        if context.cardarea == G.play and context.individual and context.other_card:get_id() == 13 and context.other_card:is_suit("Spades") then
             return {
-                x_mult = card.ability.extra.x_mult,
-                card = card
+                x_mult = card.ability.extra.x_mult
             }
         end
     end
