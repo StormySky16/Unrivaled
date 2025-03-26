@@ -184,7 +184,7 @@ SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
             "Retrigger amount resets upon",
             "playing a hand that does not",
             "score at least {C:attention}#3#%{}",
-            "of the required chips."
+            "of the required chips"
         }
     },
     config = { extra = { repetitions = 0, extra_repetitions = 1, threshold = 80, most_recent_hand = 0 } },
@@ -436,8 +436,8 @@ SMODS.Joker {
                                             return true end }))
                     card_eval_status_text(card, 'extra', nil, nil, nil,
                                             {message = localize{type = 'variable', key = 'a_chips', 
-                                            vars = {card.ability.extra.chips+card.ability.extra.chip_gain_mod*sliced_card.sell_cost}}, 
-                                            colour = G.C.BLUE, no_juice = true}.. ' chips')
+                                            vars = {card.ability.extra.chips+card.ability.extra.chip_gain_mod*sliced_card.sell_cost}}.. ' chips', 
+                                            colour = G.C.BLUE, no_juice = true})
                 end
         end
         if context.remove_playing_cards and not context.blueprint then
@@ -456,6 +456,65 @@ SMODS.Joker {
                 Xmult_mod = card.ability.extra.Xmult,
                 chip_mod = card.ability.extra.chips
             }
+        end
+    end
+}
+
+SMODS.Joker { 
+    key = 'loki',
+    loc_txt = {
+        name = "Loki",
+        text = {
+            "After defeating {C:attention}#1#{} {C:attention}Boss Blinds{},",
+            "sell this card to {C:attention}Duplicate{} a",
+            "{C:dark_edition}Negative{} copy of a random Joker",
+            "{C:inactive}(Currently {C:attention}#2#{}{C:inactive}/#1# {C:attention}Boss Blinds{}{C:inactive})"
+        }
+    },
+    config = { extra = { boss_requirement = 2, cleared_bosses = 0} },
+    rarity = "Unrivaled_heroic",
+    atlas = 'Unrivaled',
+    pos = { x = 4, y = 0 },
+    cost = 10,
+    blueprint_compat = false, 
+    eternal_compat = false,
+    --unlocked = true,
+    
+    loc_vars =  function(self, info_queue, card)
+        return { vars = {card.ability.extra.boss_requirement, card.ability.extra.cleared_bosses} }
+    end,
+    
+    calculate = function(self, card, context)
+        local eval = function(card) return (card.ability.extra.cleared_bosses >= 2) end
+        juice_card_until(card, eval, true)
+        if context.end_of_round and G.GAME.blind.boss and not context.blueprint and context.main_eval then
+            print('plus 1 boss clear')
+            card.ability.extra.cleared_bosses = card.ability.extra.cleared_bosses + 1
+            return {
+                message = (card.ability.extra.boss_requirement > card.ability.extra.cleared_bosses) and 
+                (card.ability.extra.cleared_bosses..'/'..card.ability.extra.boss_requirement) or localize('k_active_ex'),
+                colour = G.C.FILTER
+            }
+        end
+        if context.selling_self and (card.ability.extra.cleared_bosses >= card.ability.extra.boss_requirement) and not context.blueprint then
+            local jokers = {}
+            for i=1, #G.jokers.cards do 
+                if G.jokers.cards[i] ~= card then
+                    jokers[#jokers+1] = G.jokers.cards[i]
+                end
+            end
+            if #jokers > 0 then 
+                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = localize('k_duplicated_ex')})
+                local chosen_joker = pseudorandom_element(jokers, pseudoseed('yourpowersaremine'))
+                local copied = copy_card(chosen_joker, nil, nil, nil, chosen_joker.edition and chosen_joker.edition.negative)
+                if card.ability.extra.cleared_bosses then card.ability.extra.cleared_bosses = 0 end
+                copied:set_edition("e_negative", true, true)
+                copied:add_to_deck()
+                G.jokers:emplace(copied)
+                copied:juice_up()
+            else
+                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = localize('k_no_other_jokers')})
+            end
         end
     end
 }
