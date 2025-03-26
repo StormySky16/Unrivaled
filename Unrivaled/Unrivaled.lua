@@ -22,8 +22,8 @@ SMODS.Rarity {
     loc_txt = { name = 'Heroic' },
     badge_colour = HEX('f4d12b'),
     
-    default_weight = 0.15,
-    
+    -- default_weight = 0.15, --Target weight
+    default_weight = 0.05, --Temp weight to offset the low pool size
     pools = {
         ["Joker"] = true
     },
@@ -33,7 +33,13 @@ SMODS.Rarity {
     end
 }
 
-SMODS.ObjectTypes["Joker"].rarities[1].weight = 0.60
+--Target weights
+-- SMODS.ObjectTypes["Joker"].rarities[1].weight = 0.60
+-- SMODS.ObjectTypes["Joker"].rarities[2].weight = 0.20
+-- SMODS.ObjectTypes["Joker"].rarities[3].weight = 0.05
+
+--Temp weights
+SMODS.ObjectTypes["Joker"].rarities[1].weight = 0.70
 SMODS.ObjectTypes["Joker"].rarities[2].weight = 0.20
 SMODS.ObjectTypes["Joker"].rarities[3].weight = 0.05
 
@@ -322,7 +328,7 @@ SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
 }
 
 
-SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
+SMODS.Joker { 
     key = 'black_panther',
     loc_txt = {
         name = "Black Panther",
@@ -345,29 +351,40 @@ SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
     end,
     
     calculate = function(self, card, context)
-        if context.before then
+        if context.before and not context.individual and not context.blueprint then
+            print("context: ")
+            print(context)
             print('context before, BP')
             for i = 1, #context.scoring_hand do
+                print('i: ' .. i)
+                print('card i == king: '.. tostring(context.scoring_hand[i]:get_id() == 13))
+                print('card i == spades: '.. tostring(context.scoring_hand[i]:is_suit("Spades")))
                 if context.scoring_hand[i]:get_id() == 13 and context.scoring_hand[i]:is_suit("Spades") then
                     print(card.ability.extra.king_of_spades)
-                    if card.ability.extra.king_of_spades == false then
-                        card.ability.extra.king_of_spades = true
-                        print("returning bast")
-                        return{
-                            message_card = card,
-                            message =  "Tremble before Bast!",
-                            pitch = 1,
-                            volume = 2.5,
-                            sound = "Unrivaled_tremblebeforebast"
-                        }
-                    end
+                    card.ability.extra.king_of_spades = true
                 end
+            end
+            if card.ability.extra.king_of_spades then
+                print("returning bast")
+                card.ability.extra.king_of_spades = false
+                --play_sound("Unrivaled_tremblebeforebast", 1, 2.5)
+                return{
+                    message_card = card,
+                    message =  "Tremble before Bast!",
+                    pitch = 1,
+                    volume = 2.5,
+                    sound = "Unrivaled_tremblebeforebast"
+                }
             end
         end
         if context.cardarea == G.play and context.individual and context.other_card:get_id() == 13 and context.other_card:is_suit("Spades") then
             return {
                 x_mult = card.ability.extra.x_mult
             }
+        end
+
+        if context.after then
+            card.ability.extra.king_of_spades = false
         end
     end
 }
