@@ -801,9 +801,8 @@ SMODS.Joker {
         if context.before and not context.individual and not context.blueprint then
             --print("context: ")
             --print(context)
-            print('context before, Reed')
+            --print('context before, Reed')
             for i = 1, #context.scoring_hand do
-                print('i: ' .. i)
                 --These lines can crash game on debuff boss blinds due to nil
                 --print('card i == king: '.. tostring(context.scoring_hand[i]:get_id() == 13))
                 --print('card i == spades: '.. tostring(context.scoring_hand[i]:is_suit("Spades"))) 
@@ -814,7 +813,7 @@ SMODS.Joker {
             end
             if card.ability.extra.four then
                 local voice_line = "Unrivaled_" .. pseudorandom_element(fantastic_lines, pseudoseed('fantastic'))
-                print("returning fantastic")
+                --print("returning fantastic")
                 card.ability.extra.four = false
                 --play_sound("Unrivaled_tremblebeforebast", 1, 2.5)
                 return{
@@ -852,6 +851,8 @@ SMODS.Joker {
         end
     end
 }
+
+--Adam Warlock
 
 -- function return_JokerValues() -- not used, just here to demonstrate how you could return values from a joker
 --     if context.joker_main and context.cardarea == G.jokers then
