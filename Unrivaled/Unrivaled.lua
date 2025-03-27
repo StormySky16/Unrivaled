@@ -200,6 +200,7 @@ end
 -- 	end
 -- }
 
+--Winter Soldier
 SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
     key = 'winter_soldier',
     loc_txt = {
@@ -355,7 +356,7 @@ SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
     end
 }
 
-
+--Black Panther
 SMODS.Joker { 
     key = 'black_panther',
     loc_txt = {
@@ -418,6 +419,7 @@ SMODS.Joker {
     end
 }
 
+--Hela
 SMODS.Joker { 
     key = 'hela',
     loc_txt = {
@@ -431,7 +433,7 @@ SMODS.Joker {
             "{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips, {X:mult,C:white}x#2# {C:inactive} mult)"
         }
     },
-    config = { extra = { chips = 0, Xmult = 1, chip_gain_mod = 4, Xmult_mod = 0.25} },
+    config = { extra = { chips = 0, Xmult = 1, chip_gain = 4, Xmult_mod = 0.25} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 3, y = 0 },
@@ -441,7 +443,7 @@ SMODS.Joker {
     --unlocked = true,
     
     loc_vars =  function(self, info_queue, card)
-        return { vars = {card.ability.extra.chips, card.ability.extra.Xmult, card.ability.extra.chip_gain_mod, card.ability.extra.Xmult_mod} }
+        return { vars = {card.ability.extra.chips, card.ability.extra.Xmult, card.ability.extra.chip_gain, card.ability.extra.Xmult_mod} }
     end,
     
     calculate = function(self, card, context)
@@ -459,7 +461,7 @@ SMODS.Joker {
                     G.GAME.joker_buffer = G.GAME.joker_buffer - 1
                     G.E_MANAGER:add_event(Event({func = function()
                                             G.GAME.joker_buffer = 0
-                                            card.ability.extra.chips = card.ability.extra.chips + sliced_card.sell_cost*card.ability.extra.chip_gain_mod
+                                            card.ability.extra.chips = card.ability.extra.chips + sliced_card.sell_cost*card.ability.extra.chip_gain
                                             card:juice_up(0.8, 0.8)
                                             sliced_card:start_dissolve({HEX("57ecab")}, nil, 1.6)
                                             play_sound('slice1', 0.96+math.random()*0.08)
@@ -467,7 +469,7 @@ SMODS.Joker {
                                             return true end }))
                     card_eval_status_text(card, 'extra', nil, nil, nil,
                                             {message = localize{type = 'variable', key = 'a_chips', 
-                                            vars = {card.ability.extra.chips+card.ability.extra.chip_gain_mod*sliced_card.sell_cost}}.. ' chips', 
+                                            vars = {card.ability.extra.chips+card.ability.extra.chip_gain*sliced_card.sell_cost}}.. ' chips', 
                                             colour = G.C.BLUE, no_juice = true})
                 end
         end
@@ -494,7 +496,8 @@ SMODS.Joker {
     end
 }
 
-SMODS.Joker { 
+--Loki
+SMODS.Joker { --TODO: Fix Juice Up ramping too hard
     key = 'loki',
     loc_txt = {
         name = "Loki",
@@ -561,6 +564,96 @@ SMODS.Joker {
             else
                 card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = localize('k_no_other_jokers')})
             end
+        end
+    end
+}
+
+--The Thing
+SMODS.Joker { --TODO: Add Voice Lines
+    key = 'the_thing',
+    loc_txt = {
+        name = "The Thing",
+        text = {
+            "This Joker gains {C:chips}+#2#{} Chips",
+            "if played hand has exactly {C:attention}#3#{} cards",
+            "and contains a {C:attention}Four of a Kind{}",
+            "{C:inactive}(Currently {C:chips}+#1# Chips{}{C:inactive})"
+        }
+    },
+    config = { extra = { chips = 0, chip_gain = 50, played_hand_size_threshold = 4} },
+    rarity = "Unrivaled_heroic",
+    atlas = 'Unrivaled',
+    pos = { x = 5, y = 0 },
+    cost = 8,
+    blueprint_compat = true,
+    eternal_compat = true,
+    --unlocked = true,
+    
+    loc_vars =  function(self, info_queue, card)
+        return { vars = {card.ability.extra.chips, card.ability.extra.chip_gain, card.ability.extra.played_hand_size_threshold} }
+    end,
+    
+    calculate = function(self, card, context)
+        if context.before and next(context.poker_hands['Four of a Kind']) and #context.full_hand == 4 and not context.blueprint then
+            card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.chip_gain
+            return {
+                message = localize('k_upgrade_ex'),
+                colour = G.C.CHIPS,
+                card = card
+            }
+        end
+        if context.cardarea == G.jokers and context.joker_main and card.ability.extra.chips > 0 then
+            return{
+                message = localize{type='variable',key='a_chips', vars={card.ability.extra.chips}},
+                chip_mod = card.ability.extra.chips
+            }
+        end
+    end
+}
+
+--Human Torch
+SMODS.Joker { --TODO: Add Voice Lines
+    key = 'human_torch',
+    loc_txt = {
+        name = "Human Torch",
+        text = {
+            "If {C:attention}first discard{} of round",
+            "has exactly {C:attention}#1# cards{}, destroy them,",
+            "then upgrade the level",
+            "of the corresponding hand"
+        }
+    },
+    config = { extra = {discarded_hand_size_threshold = 4} },
+    rarity = "Unrivaled_heroic",
+    atlas = 'Unrivaled',
+    pos = { x = 0, y = 1 },
+    cost = 8,
+    blueprint_compat = true,
+    eternal_compat = true,
+    --unlocked = true,
+    
+    loc_vars =  function(self, info_queue, card)
+        return { vars = {card.ability.extra.discarded_hand_size_threshold} }
+    end,
+    
+    calculate = function(self, card, context)
+        if not context.blueprint then
+            local eval = function(card) return G.GAME.current_round.discards_used == 0 and not G.RESET_JIGGLES end
+            juice_card_until(card, eval, true)
+        end
+        if context.pre_discard and G.GAME.current_round.discards_used <= 0 and not context.hook then
+                local text,disp_text = G.FUNCS.get_poker_hand_info(G.hand.highlighted)
+                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Flame on!"})
+                update_hand_text({sound = 'button', volume = 0.7, pitch = 0.8, delay = 0.3}, {handname=localize(text, 'poker_hands'),chips = G.GAME.hands[text].chips, mult = G.GAME.hands[text].mult, level=G.GAME.hands[text].level})
+                level_up_hand(context.blueprint_card or card, text, nil, 1)
+                update_hand_text({sound = 'button', volume = 0.7, pitch = 1.1, delay = 0}, {mult = 0, chips = 0, handname = '', level = ''})
+        end
+        if context.discard and G.GAME.current_round.discards_used <= 0 and #context.full_hand == card.ability.extra.discarded_hand_size_threshold then
+                return {
+                    delay = 0.45, 
+                    remove = true,
+                    card = self
+                }
         end
     end
 }
