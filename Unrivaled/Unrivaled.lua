@@ -542,8 +542,8 @@ SMODS.Joker { --TODO: Fix Juice Up ramping too hard
     
     calculate = function(self, card, context)
         local eval = function(card) return (card.ability.extra.cleared_bosses >= 2) end
-        juice_card_until(card, eval, true)
         if context.end_of_round and not context.blueprint and context.main_eval then
+            juice_card_until(card, eval, true)
             if G.GAME.blind.boss then
                 print('plus 1 boss clear')
                 card.ability.extra.cleared_bosses = card.ability.extra.cleared_bosses + 1
@@ -553,7 +553,7 @@ SMODS.Joker { --TODO: Fix Juice Up ramping too hard
                     message = localize('k_active_ex'),
                     colour = G.C.FILTER,
                     pitch = 1,
-                    volume = 5,
+                    volume = 2,
                     sound = "Unrivaled_iamlokiorami"
                 }
             else 
@@ -564,6 +564,7 @@ SMODS.Joker { --TODO: Fix Juice Up ramping too hard
             end
         end
         if context.selling_self and (card.ability.extra.cleared_bosses >= card.ability.extra.boss_requirement) and not context.blueprint then
+            juice_card_until(card, eval, true)
             local jokers = {}
             for i=1, #G.jokers.cards do 
                 if G.jokers.cards[i] ~= card then
