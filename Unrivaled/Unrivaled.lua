@@ -43,6 +43,7 @@ SMODS.ObjectTypes["Joker"].rarities[1].weight = 0.70
 SMODS.ObjectTypes["Joker"].rarities[2].weight = 0.20
 SMODS.ObjectTypes["Joker"].rarities[3].weight = 0.05
 
+--Winter Soldier Lines
 SMODS.Sound ({
     key = "again", path = "again.ogg"
 })  
@@ -52,9 +53,25 @@ SMODS.Sound ({
 SMODS.Sound ({
     key = "armedanddangerous", path = "armedanddangerous.ogg"
 })
+
+--Black Panther Lines
 SMODS.Sound ({
     key = "tremblebeforebast", path = "tremblebeforebast.ogg"
 })
+
+--Hela Lines
+SMODS.Sound ({
+    key = "mycrowshunger", path = "mycrowshunger.ogg"
+})
+
+SMODS.Sound ({
+    key = "theirsoulsaremine", path = "theirsoulsaremine.ogg"
+})
+
+SMODS.Sound ({
+    key = "anothersoulfallsintomyrealm", path = "anothersoulfallsintomyrealm.ogg"
+})
+hela_lines = {"mycrowshunger", "theirsoulsaremine", "anothersoulfallsintomyrealm"}
 
 -- you can have shared helper functions
 function shakecard(self) --visually shake a card
@@ -425,6 +442,8 @@ SMODS.Joker {
                 if my_pos and G.jokers.cards[my_pos+1] and not card.getting_sliced 
                 and not G.jokers.cards[my_pos+1].ability.eternal and not G.jokers.cards[my_pos+1].getting_sliced then 
                     local sliced_card = G.jokers.cards[my_pos+1]
+                    local voice_line = "Unrivaled_" .. pseudorandom_element(hela_lines, pseudoseed('helunleashed'))
+                    --print(voice_line)
                     sliced_card.getting_sliced = true
                     G.GAME.joker_buffer = G.GAME.joker_buffer - 1
                     G.E_MANAGER:add_event(Event({func = function()
@@ -433,6 +452,7 @@ SMODS.Joker {
                                             card:juice_up(0.8, 0.8)
                                             sliced_card:start_dissolve({HEX("57ecab")}, nil, 1.6)
                                             play_sound('slice1', 0.96+math.random()*0.08)
+                                            play_sound(voice_line, 1, 3)
                                             return true end }))
                     card_eval_status_text(card, 'extra', nil, nil, nil,
                                             {message = localize{type = 'variable', key = 'a_chips', 
@@ -447,6 +467,9 @@ SMODS.Joker {
             card_eval_status_text(card, 'extra', nil, nil, nil, 
                                  {message = "Upgraded!",
                                  colour = G.C.FILTER})
+            local voice_line = "Unrivaled_" .. pseudorandom_element(hela_lines, pseudoseed('helunleashed'))
+            --print(voice_line)
+            play_sound(voice_line, 1, 3)
         end
 
         if context.cardarea == G.jokers and context.joker_main and (card.ability.extra.Xmult > 1 or card.ability.extra.chips > 0) then
