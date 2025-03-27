@@ -390,7 +390,7 @@ SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
 }
 
 --Black Panther
-SMODS.Joker { 
+SMODS.Joker {
     key = 'black_panther',
     loc_txt = {
         name = "Black Panther",
@@ -453,7 +453,7 @@ SMODS.Joker {
 }
 
 --Hela
-SMODS.Joker { 
+SMODS.Joker {
     key = 'hela',
     loc_txt = {
         name = "Hela",
@@ -462,7 +462,7 @@ SMODS.Joker {
             "destroy Joker to the right and permanently",
             "add {C:attention}#3#{} times its sell value to its {C:chips}chips{}.",
             "This joker also gains {X:mult,C:white}x#4#{} Mult",
-            "when a {C:attention}playing card{} is destroyed.",
+            "when a {C:attention}playing card{} is destroyed",
             "{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips, {X:mult,C:white}x#2# {C:inactive} mult)"
         }
     },
@@ -530,7 +530,7 @@ SMODS.Joker {
 }
 
 --Loki
-SMODS.Joker { 
+SMODS.Joker {
     key = 'loki',
     loc_txt = {
         name = "Loki",
@@ -603,7 +603,7 @@ SMODS.Joker {
 }
 
 --The Thing
-SMODS.Joker { --TODO: Add Voice Lines
+SMODS.Joker {
     key = 'the_thing',
     loc_txt = {
         name = "The Thing",
@@ -650,7 +650,7 @@ SMODS.Joker { --TODO: Add Voice Lines
 }
 
 --Human Torch
-SMODS.Joker { 
+SMODS.Joker {
     key = 'human_torch',
     loc_txt = {
         name = "Human Torch",
@@ -700,6 +700,55 @@ SMODS.Joker {
     end
 }
 
+--Invisible Woman
+SMODS.Joker { --TODO: Implement Voice Lines
+    key = 'invisible_woman',
+    loc_txt = {
+        name = "Invisible Woman",
+        text = {
+            "If played hand contains",
+            "exactly {C:attention}#1#{} cards,",
+            "scored cards become {C:attention}Glass Cards{}"
+        }
+    },
+    config = { extra = {played_hand_size_threshold = 4} },
+    rarity = "Unrivaled_heroic",
+    atlas = 'Unrivaled',
+    pos = { x = 1, y = 1 },
+    cost = 8,
+    blueprint_compat = false,
+    eternal_compat = true,
+    --unlocked = true,
+    
+    loc_vars =  function(self, info_queue, card)
+        return { vars = {card.ability.extra.played_hand_size_threshold} }
+    end,
+    
+    calculate = function(self, card, context)
+        if context.before and #context.full_hand == 4 and not context.blueprint then
+            --local voice_line = "Unrivaled_" .. pseudorandom_element(invisible_lines, pseudoseed('disappear'))
+            local cards = {}
+            for k, v in ipairs(context.scoring_hand) do
+                    cards[#cards+1] = v
+                    v:set_ability(G.P_CENTERS.m_glass, nil, true)
+                    G.E_MANAGER:add_event(Event({
+                        func = function()
+                            v:juice_up()
+                            return true
+                        end
+                    })) 
+                end
+            return {
+                message = "Disappear!",
+                colour = G.C.CHIPS,
+                card = card--,
+               -- pitch = 1,
+                --volume = 2,
+                --sound = voice_line
+            }
+        end
+    end
+}
 
 
 -- function return_JokerValues() -- not used, just here to demonstrate how you could return values from a joker
