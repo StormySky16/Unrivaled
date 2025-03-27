@@ -117,6 +117,12 @@ SMODS.Sound ({
     key = "turneduptheheatjustforyou", path = "turneduptheheatjustforyou.ogg"
 })
 
+--Invisible Woman Lines
+
+SMODS.Sound ({
+    key = "disappear", path = "disappear.ogg"
+})
+
 -- you can have shared helper functions
 -- function shakecard(self) --visually shake a card
 --     G.E_MANAGER:add_event(Event({
@@ -701,7 +707,7 @@ SMODS.Joker {
 }
 
 --Invisible Woman
-SMODS.Joker { --TODO: Implement Voice Lines
+SMODS.Joker {
     key = 'invisible_woman',
     loc_txt = {
         name = "Invisible Woman",
@@ -741,10 +747,10 @@ SMODS.Joker { --TODO: Implement Voice Lines
             return {
                 message = "Disappear!",
                 colour = G.C.CHIPS,
-                card = card--,
-               -- pitch = 1,
-                --volume = 2,
-                --sound = voice_line
+                card = card,
+                pitch = 1,
+                volume = 2,
+                sound = "Unrivaled_disappear"
             }
         end
     end
