@@ -86,6 +86,20 @@ SMODS.Sound ({
 
 --The Thing Lines
 
+thing_lines = {"nottooshabby", "littleextraclobber", "thoughtIwasstrongenough"}
+
+SMODS.Sound ({
+    key = "nottooshabby", path = "nottooshabby.ogg"
+})
+
+SMODS.Sound ({
+    key = "littleextraclobber", path = "littleextraclobber.ogg"
+})
+
+SMODS.Sound ({
+    key = "thoughtIwasstrongenough", path = "thoughtIwasstrongenough.ogg"
+})
+
 --Human Torch Lines
 
 torch_lines = {"flameonrivals", "isithotinhere", "turneduptheheatjustforyou"}
@@ -104,14 +118,14 @@ SMODS.Sound ({
 })
 
 -- you can have shared helper functions
-function shakecard(self) --visually shake a card
-    G.E_MANAGER:add_event(Event({
-        func = function()
-            self:juice_up(0.5, 0.5)
-            return true
-        end
-    }))
-end
+-- function shakecard(self) --visually shake a card
+--     G.E_MANAGER:add_event(Event({
+--         func = function()
+--             self:juice_up(0.5, 0.5)
+--             return true
+--         end
+--     }))
+-- end
 
 -- SMODS.Joker {
 -- 	-- How the code refers to the joker.
@@ -516,7 +530,7 @@ SMODS.Joker {
 }
 
 --Loki
-SMODS.Joker { --TODO: Fix Juice Up ramping too hard
+SMODS.Joker { 
     key = 'loki',
     loc_txt = {
         name = "Loki",
@@ -615,11 +629,15 @@ SMODS.Joker { --TODO: Add Voice Lines
     
     calculate = function(self, card, context)
         if context.before and next(context.poker_hands['Four of a Kind']) and #context.full_hand == 4 and not context.blueprint then
+            local voice_line = "Unrivaled_" .. pseudorandom_element(thing_lines, pseudoseed('itsclobberintime'))
             card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.chip_gain
             return {
                 message = localize('k_upgrade_ex'),
                 colour = G.C.CHIPS,
-                card = card
+                card = card,
+                pitch = 1,
+                volume = 2,
+                sound = voice_line
             }
         end
         if context.cardarea == G.jokers and context.joker_main and card.ability.extra.chips > 0 then
@@ -632,7 +650,7 @@ SMODS.Joker { --TODO: Add Voice Lines
 }
 
 --Human Torch
-SMODS.Joker { --TODO: Add Voice Lines
+SMODS.Joker { 
     key = 'human_torch',
     loc_txt = {
         name = "Human Torch",
@@ -681,6 +699,8 @@ SMODS.Joker { --TODO: Add Voice Lines
         end
     end
 }
+
+
 
 -- function return_JokerValues() -- not used, just here to demonstrate how you could return values from a joker
 --     if context.joker_main and context.cardarea == G.jokers then
