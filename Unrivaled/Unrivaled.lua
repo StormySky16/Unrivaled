@@ -60,6 +60,8 @@ SMODS.Sound ({
 })
 
 --Hela Lines
+hela_lines = {"mycrowshunger", "theirsoulsaremine", "anothersoulfallsintomyrealm"}
+
 SMODS.Sound ({
     key = "mycrowshunger", path = "mycrowshunger.ogg"
 })
@@ -72,8 +74,6 @@ SMODS.Sound ({
     key = "anothersoulfallsintomyrealm", path = "anothersoulfallsintomyrealm.ogg"
 })
 
-hela_lines = {"mycrowshunger", "theirsoulsaremine", "anothersoulfallsintomyrealm"}
-
 --Loki Lines
 
 SMODS.Sound ({
@@ -82,6 +82,25 @@ SMODS.Sound ({
 
 SMODS.Sound ({
     key = "iamlokiorami", path = "iamlokiorami.ogg"
+})
+
+--The Thing Lines
+
+--Human Torch Lines
+
+torch_lines = {"flameonrivals", "isithotinhere", "turneduptheheatjustforyou"}
+
+
+SMODS.Sound ({
+    key = "flameonrivals", path = "flameonrivals.ogg"
+})
+
+SMODS.Sound ({
+    key = "isithotinhere", path = "isithotinhere.ogg"
+})
+
+SMODS.Sound ({
+    key = "turneduptheheatjustforyou", path = "turneduptheheatjustforyou.ogg"
 })
 
 -- you can have shared helper functions
@@ -637,13 +656,17 @@ SMODS.Joker { --TODO: Add Voice Lines
     end,
     
     calculate = function(self, card, context)
-        if not context.blueprint then
+        if not context.blueprint and context.first_hand_drawn then
             local eval = function(card) return G.GAME.current_round.discards_used == 0 and not G.RESET_JIGGLES end
             juice_card_until(card, eval, true)
         end
         if context.pre_discard and G.GAME.current_round.discards_used <= 0 and not context.hook then
                 local text,disp_text = G.FUNCS.get_poker_hand_info(G.hand.highlighted)
-                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Flame on!"})
+                local voice_line = "Unrivaled_" .. pseudorandom_element(torch_lines, pseudoseed('supernova'))
+                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Incinerated!"})
+                if not context.blueprint then
+                    play_sound(voice_line, 1, 2)
+                end
                 update_hand_text({sound = 'button', volume = 0.7, pitch = 0.8, delay = 0.3}, {handname=localize(text, 'poker_hands'),chips = G.GAME.hands[text].chips, mult = G.GAME.hands[text].mult, level=G.GAME.hands[text].level})
                 level_up_hand(context.blueprint_card or card, text, nil, 1)
                 update_hand_text({sound = 'button', volume = 0.7, pitch = 1.1, delay = 0}, {mult = 0, chips = 0, handname = '', level = ''})
