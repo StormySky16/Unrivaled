@@ -71,7 +71,18 @@ SMODS.Sound ({
 SMODS.Sound ({
     key = "anothersoulfallsintomyrealm", path = "anothersoulfallsintomyrealm.ogg"
 })
+
 hela_lines = {"mycrowshunger", "theirsoulsaremine", "anothersoulfallsintomyrealm"}
+
+--Loki Lines
+
+SMODS.Sound ({
+    key = "yourpowersaremine", path = "yourpowersaremine.ogg"
+})
+
+SMODS.Sound ({
+    key = "iamlokiorami", path = "iamlokiorami.ogg"
+})
 
 -- you can have shared helper functions
 function shakecard(self) --visually shake a card
@@ -510,14 +521,25 @@ SMODS.Joker {
     calculate = function(self, card, context)
         local eval = function(card) return (card.ability.extra.cleared_bosses >= 2) end
         juice_card_until(card, eval, true)
-        if context.end_of_round and G.GAME.blind.boss and not context.blueprint and context.main_eval then
-            print('plus 1 boss clear')
-            card.ability.extra.cleared_bosses = card.ability.extra.cleared_bosses + 1
-            return {
-                message = (card.ability.extra.boss_requirement > card.ability.extra.cleared_bosses) and 
-                (card.ability.extra.cleared_bosses..'/'..card.ability.extra.boss_requirement) or localize('k_active_ex'),
-                colour = G.C.FILTER
-            }
+        if context.end_of_round and not context.blueprint and context.main_eval then
+            if G.GAME.blind.boss then
+                print('plus 1 boss clear')
+                card.ability.extra.cleared_bosses = card.ability.extra.cleared_bosses + 1
+            end
+            if (card.ability.extra.boss_requirement <= card.ability.extra.cleared_bosses) then
+                return {
+                    message = localize('k_active_ex'),
+                    colour = G.C.FILTER,
+                    pitch = 1,
+                    volume = 5,
+                    sound = "Unrivaled_iamlokiorami"
+                }
+            else 
+                return {
+                    message = (card.ability.extra.cleared_bosses..'/'..card.ability.extra.boss_requirement),
+                    colour = G.C.FILTER,
+                }
+            end
         end
         if context.selling_self and (card.ability.extra.cleared_bosses >= card.ability.extra.boss_requirement) and not context.blueprint then
             local jokers = {}
@@ -527,6 +549,7 @@ SMODS.Joker {
                 end
             end
             if #jokers > 0 then 
+                play_sound("Unrivaled_yourpowersaremine", 1, 2.5)
                 card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = localize('k_duplicated_ex')})
                 local chosen_joker = pseudorandom_element(jokers, pseudoseed('yourpowersaremine'))
                 local copied = copy_card(chosen_joker, nil, nil, nil, chosen_joker.edition and chosen_joker.edition.negative)
