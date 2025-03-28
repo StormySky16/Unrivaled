@@ -478,7 +478,7 @@ SMODS.Joker {
         text = {
             "When {C:attention}Blind{} is selected,",
             "destroy Joker to the right and permanently",
-            "add {C:attention}#3#{} times its sell value to its {C:chips}chips{}.",
+            "add {C:attention}#3#{} times its sell value to {C:chips}chips{}.",
             "This joker also gains {X:mult,C:white}x#4#{} Mult",
             "when a {C:attention}playing card{} is destroyed",
             "{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips, {X:mult,C:white}x#2# {C:inactive} mult)"
@@ -798,7 +798,8 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
-        if context.before and not context.individual and not context.blueprint then
+        if context.before and not context.individual and not context.blueprint 
+        and #context.full_hand == card.ability.extra.played_hand_size_threshold then
             --print("context: ")
             --print(context)
             --print('context before, Reed')
@@ -852,7 +853,181 @@ SMODS.Joker {
     end
 }
 
+--The Fantastic Four
+SMODS.Joker {
+    key = 'fantastic_four',
+    loc_txt = {
+        name = "The Fantastic Four",
+        text = {
+            "If played hand contains exactly",
+            "{C:attention}#5#{} cards and is a {C:attention}Four of a Kind{} of {C:attention}#6#{}s,", 
+            "this Joker gains {C:chips}+#2#{} Chips and {X:mult,C:white} x#4#{} Mult,",
+            "and played {C:attention}Glass Cards{} will not break.",
+            "when {C:attention}Boss Blind{} is defeated",
+            "If the played hand clears the {C:attention}Blind's{}",
+            "required chips, level up the corresponding hand.",
+            "{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips, {X:mult,C:white}x#3# {C:inactive} mult)"
+        }
+    },
+    config = { extra = { chips = 0, chip_mod = 100, Xmult = 1, Xmult_mod = 1, played_hand_size_threshold = 4, 
+                        target_card_id = 4, default_Xmult = 1, four = true} },
+    rarity = "Unrivaled_heroic",
+    atlas = 'Unrivaled',
+    pos = { x = 3, y = 1 },
+    cost = 16,
+    blueprint_compat = true,
+    eternal_compat = true,
+    --unlocked = true,
+    
+    loc_vars =  function(self, info_queue, card)
+        return { vars = {card.ability.extra.Xmult, card.ability.extra.Xmult_mod, 
+        card.ability.extra.played_hand_size_threshold, card.ability.extra.target_card_id,
+        card.ability.extra.default_Xmult, card.ability.extra.four} }
+    end,
+    
+    calculate = function(self, card, context)
+        local probs = G.GAME.probabilities.normal
+        if context.before and not context.individual and not context.blueprint 
+        and #context.full_hand == card.ability.extra.played_hand_size_threshold then
+            --print("context: ")
+            --print(context)
+            --print('context before, Reed')
+            for i = 1, #context.scoring_hand do
+                --These lines can crash game on debuff boss blinds due to nil
+                --print('card i == king: '.. tostring(context.scoring_hand[i]:get_id() == 13))
+                --print('card i == spades: '.. tostring(context.scoring_hand[i]:is_suit("Spades"))) 
+                if context.scoring_hand[i]:get_id() ~= 4 then
+                    card.ability.extra.four = false
+                end
+            end
+            if card.ability.extra.four then
+                local voice_line = "Unrivaled_" .. pseudorandom_element(fantastic_lines, pseudoseed('fantasticfamily'))
+                card.ability.extra.Xmult = card.ability.extra.Xmult + card.ability.extra.Xmult_mod
+                --print("returning fantastic")
+                card.ability.extra.four = false
+                --play_sound("Unrivaled_tremblebeforebast", 1, 2.5)
+                return{
+                    message_card = card,
+                    message =  "Fantastic!",
+                    pitch = 1,
+                    volume = 2,
+                    sound = voice_line
+                }
+            end
+        end
+        if context.cardarea == G.play and context.individual and #context.full_hand == card.ability.extra.played_hand_size_threshold 
+        and context.other_card:get_id() == card.ability.extra.target_card_id and 
+        context.other_card.ability.name == "Glass Card" and not context.blueprint then
+            --local voice_line = "Unrivaled_" .. pseudorandom_element(invisible_lines, pseudoseed('disappear'))
+            
+            return {
+                extra = {focus = card, message = localize('k_upgrade_ex')},
+                card = card,
+                colour = G.C.MULT
+            }
+        end
+        if context.cardarea == G.jokers and context.joker_main and (card.ability.extra.Xmult > 1 or card.ability.extra.chips > 0) then
+            return{
+                message = localize{type='variable',key='a_chips',vars={card.ability.extra.chips}}.. "chips, " ..
+                localize{type='variable',key='a_xmult',vars={card.ability.extra.Xmult}},
+                Xmult_mod = card.ability.extra.Xmult,
+                chip_mod = card.ability.extra.chips
+            }
+        end
+        if context.after then
+            card.ability.extra.four = true
+            G.GAME.probabilities.normal = probs
+        end
+    end,
+    in_pool = function(self, card)
+        return false
+    end
+}
+
+
 --Adam Warlock
+-- SMODS.Joker {
+--     key = 'adam_warlock',
+--     loc_txt = {
+--         name = "Adam Warlock",
+--         text = {
+--             "If played hand contains exactly",
+--             "{C:attention}#3#{} cards, this Joker gains {X:mult,C:white} x#2#{} mult",
+--             "for every {C:attention}#4#{} scored, resets",
+--             "when {C:attention}Boss Blind{} is defeated", 
+--             "{C:inactive}(Currently {X:mult,C:white}x#1#{}{C:inactive})"
+--         }
+--     },
+--     config = { extra = { Xmult = 1, Xmult_mod = 1, played_hand_size_threshold = 4, target_card_id = 4, default_Xmult = 1, four = false} },
+--     rarity = "Unrivaled_heroic",
+--     atlas = 'Unrivaled',
+--     pos = { x = 3, y = 1 },
+--     cost = 8,
+--     blueprint_compat = true,
+--     eternal_compat = true,
+--     --unlocked = true,
+    
+--     loc_vars =  function(self, info_queue, card)
+--         return { vars = {card.ability.extra.Xmult, card.ability.extra.Xmult_mod, 
+--         card.ability.extra.played_hand_size_threshold, card.ability.extra.target_card_id,
+--         card.ability.extra.default_Xmult, card.ability.extra.four} }
+--     end,
+    
+--     calculate = function(self, card, context)
+--         if context.before and not context.individual and not context.blueprint then
+--             --print("context: ")
+--             --print(context)
+--             --print('context before, Reed')
+--             for i = 1, #context.scoring_hand do
+--                 --These lines can crash game on debuff boss blinds due to nil
+--                 --print('card i == king: '.. tostring(context.scoring_hand[i]:get_id() == 13))
+--                 --print('card i == spades: '.. tostring(context.scoring_hand[i]:is_suit("Spades"))) 
+--                 if context.scoring_hand[i]:get_id() == 4 then
+--                     print(card.ability.extra.four)
+--                     card.ability.extra.four = true
+--                 end
+--             end
+--             if card.ability.extra.four then
+--                 local voice_line = "Unrivaled_" .. pseudorandom_element(fantastic_lines, pseudoseed('fantastic'))
+--                 --print("returning fantastic")
+--                 card.ability.extra.four = false
+--                 --play_sound("Unrivaled_tremblebeforebast", 1, 2.5)
+--                 return{
+--                     message_card = card,
+--                     message =  "Fantastic!",
+--                     pitch = 1,
+--                     volume = 2,
+--                     sound = voice_line
+--                 }
+--             end
+--         end
+--         if context.cardarea == G.play and context.individual and #context.full_hand == card.ability.extra.played_hand_size_threshold 
+--         and context.other_card:get_id() == card.ability.extra.target_card_id and not context.blueprint then
+--             --local voice_line = "Unrivaled_" .. pseudorandom_element(invisible_lines, pseudoseed('disappear'))
+--             card.ability.extra.Xmult = card.ability.extra.Xmult + card.ability.extra.Xmult_mod
+--             return {
+--                 extra = {focus = card, message = localize('k_upgrade_ex')},
+--                 card = card,
+--                 colour = G.C.MULT
+--             }
+--         end
+--         if context.end_of_round and G.GAME.blind.boss and card.ability.extra.Xmult > 1 then
+--             card.ability.extra.Xmult = card.ability.extra.default_Xmult
+--             return {
+--                 message = localize('k_reset'),
+--                 colour = G.C.RED,
+--                 Xmult_mod = card.ability.extra.Xmult
+--             }
+--         end
+--         if context.cardarea == G.jokers and context.joker_main and card.ability.extra.Xmult > 1 then
+--             return{
+--                 message = localize{type='variable',key='a_xmult',vars={card.ability.extra.Xmult}},
+--                 Xmult_mod = card.ability.extra.Xmult
+--             }
+--         end
+--     end
+-- }
+
 
 -- function return_JokerValues() -- not used, just here to demonstrate how you could return values from a joker
 --     if context.joker_main and context.cardarea == G.jokers then
