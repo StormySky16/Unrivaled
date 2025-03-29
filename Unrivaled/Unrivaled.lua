@@ -886,7 +886,6 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
-        local probs = G.GAME.probabilities.normal
         if context.before and not context.individual and not context.blueprint 
         and #context.full_hand == card.ability.extra.played_hand_size_threshold then
             --print("context: ")
@@ -936,7 +935,6 @@ SMODS.Joker {
         end
         if context.after then
             card.ability.extra.four = true
-            G.GAME.probabilities.normal = probs
         end
     end,
     in_pool = function(self, card)
