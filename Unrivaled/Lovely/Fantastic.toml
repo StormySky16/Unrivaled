@@ -16,9 +16,10 @@ match_indent = true
 payload = '''
         if scoring_hand and SMODS.has_enhancement(card, 'm_glass') and not card.debuff and pseudorandom('glass') < G.GAME.probabilities.normal/(card.ability.name == 'Glass Card' and card.ability.extra or G.P_CENTERS.m_glass.config.extra) then
             if (next(SMODS.find_card("j_Unrivaled_fantastic_four"))) then
-                card:juice_up(0.5, 0.5)
                 card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Shields Up!", G.C.CHIPS})
+                card:juice_up(0.5, 0.5)
                 destroyed = false
+                SMODS.calculate_context({Unrivaled_protected = true})
             end
 
             if not (next(SMODS.find_card("j_Unrivaled_fantastic_four"))) then

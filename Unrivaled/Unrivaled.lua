@@ -902,6 +902,7 @@ SMODS.Joker {
             if card.ability.extra.four then
                 local voice_line = "Unrivaled_" .. pseudorandom_element(fantastic_lines, pseudoseed('fantasticfamily'))
                 card.ability.extra.Xmult = card.ability.extra.Xmult + card.ability.extra.Xmult_mod
+                card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.chip_mod
                 --print("returning fantastic")
                 card.ability.extra.four = false
                 --play_sound("Unrivaled_tremblebeforebast", 1, 2.5)
@@ -914,16 +915,8 @@ SMODS.Joker {
                 }
             end
         end
-        if context.cardarea == G.play and context.individual and #context.full_hand == card.ability.extra.played_hand_size_threshold 
-        and context.other_card:get_id() == card.ability.extra.target_card_id and 
-        context.other_card.ability.name == "Glass Card" and not context.blueprint then
-            --local voice_line = "Unrivaled_" .. pseudorandom_element(invisible_lines, pseudoseed('disappear'))
-            
-            return {
-                extra = {focus = card, message = localize('k_upgrade_ex')},
-                card = card,
-                colour = G.C.MULT
-            }
+        if context.Unrivaled_protected then
+            print("protected!")
         end
         if context.cardarea == G.jokers and context.joker_main and (card.ability.extra.Xmult > 1 or card.ability.extra.chips > 0) then
             return{
