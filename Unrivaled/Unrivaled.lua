@@ -870,7 +870,7 @@ SMODS.Joker {
         }
     },
     config = { extra = { chips = 0, chip_mod = 100, Xmult = 1, Xmult_mod = 1, played_hand_size_threshold = 4, 
-                        target_card_id = 4, default_Xmult = 1, four = true} },
+                        target_card_id = 4, four = true} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 3, y = 1 },
@@ -880,9 +880,9 @@ SMODS.Joker {
     --unlocked = true,
     
     loc_vars =  function(self, info_queue, card)
-        return { vars = {card.ability.extra.Xmult, card.ability.extra.Xmult_mod, 
-        card.ability.extra.played_hand_size_threshold, card.ability.extra.target_card_id,
-        card.ability.extra.default_Xmult, card.ability.extra.four} }
+        return { vars = {card.ability.extra.chips, card.ability.extra.chip_mod, card.ability.extra.Xmult, 
+        card.ability.extra.Xmult_mod, card.ability.extra.played_hand_size_threshold, 
+        card.ability.extra.target_card_id, card.ability.extra.four} }
     end,
     
     calculate = function(self, card, context)
