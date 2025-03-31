@@ -678,6 +678,34 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
+        if context.buying_card and not context.blueprint then
+            --print("card bought")
+            if next(SMODS.find_card("j_Unrivaled_fantastic_four")) then
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        G.hand_text_area.blind_chips:juice_up()
+                        G.hand_text_area.game_chips:juice_up()
+                        play_sound('tarot1')
+                        card:start_dissolve()
+                        return true
+                    end
+                })) 
+            end
+        end
+        -- if context.card_added and not context.blueprint then
+        --     --print("card bought")
+        --     if SMODS.find_card("j_Unrivaled_fantastic_four") then
+        --         G.E_MANAGER:add_event(Event({
+        --             func = function()
+        --                 G.hand_text_area.blind_chips:juice_up()
+        --                 G.hand_text_area.game_chips:juice_up()
+        --                 play_sound('tarot1')
+        --                 card:start_dissolve()
+        --                 return true
+        --             end
+        --         })) 
+        --     end
+        -- end
         if context.before and next(context.poker_hands['Four of a Kind']) and 
         #context.full_hand == card.ability.extra.played_hand_size_threshold and not context.blueprint then
             local voice_line = "Unrivaled_" .. pseudorandom_element(thing_lines, pseudoseed('itsclobberintime'))
@@ -736,6 +764,34 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
+        if context.buying_card and not context.blueprint then
+            --print("card bought")
+            if next(SMODS.find_card("j_Unrivaled_fantastic_four")) then
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        G.hand_text_area.blind_chips:juice_up()
+                        G.hand_text_area.game_chips:juice_up()
+                        play_sound('tarot1')
+                        card:start_dissolve()
+                        return true
+                    end
+                })) 
+            end
+        end
+        -- if context.card_added and not context.blueprint then
+        --     --print("card bought")
+        --     if SMODS.find_card("j_Unrivaled_fantastic_four") then
+        --         G.E_MANAGER:add_event(Event({
+        --             func = function()
+        --                 G.hand_text_area.blind_chips:juice_up()
+        --                 G.hand_text_area.game_chips:juice_up()
+        --                 play_sound('tarot1')
+        --                 card:start_dissolve()
+        --                 return true
+        --             end
+        --         })) 
+        --     end
+        -- end
         if not context.blueprint and context.first_hand_drawn then
             local eval = function(card) return G.GAME.current_round.discards_used == 0 and not G.RESET_JIGGLES end
             juice_card_until(card, eval, true)
@@ -796,6 +852,34 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
+        if context.buying_card and not context.blueprint then
+            --print("card bought")
+            if next(SMODS.find_card("j_Unrivaled_fantastic_four")) then
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        G.hand_text_area.blind_chips:juice_up()
+                        G.hand_text_area.game_chips:juice_up()
+                        play_sound('tarot1')
+                        card:start_dissolve()
+                        return true
+                    end
+                })) 
+            end
+        end
+        -- if context.card_added and not context.blueprint then
+        --     --print("card bought")
+        --     if SMODS.find_card("j_Unrivaled_fantastic_four") then
+        --         G.E_MANAGER:add_event(Event({
+        --             func = function()
+        --                 G.hand_text_area.blind_chips:juice_up()
+        --                 G.hand_text_area.game_chips:juice_up()
+        --                 play_sound('tarot1')
+        --                 card:start_dissolve()
+        --                 return true
+        --             end
+        --         })) 
+        --     end
+        -- end
         if context.before and #context.full_hand == card.ability.extra.played_hand_size_threshold and not context.blueprint then
             --local voice_line = "Unrivaled_" .. pseudorandom_element(invisible_lines, pseudoseed('disappear'))
             local cards = {}
@@ -861,39 +945,44 @@ SMODS.Joker {
     
     calculate = function(self, card, context)
         if context.buying_card and not context.blueprint then
-            print("card bought")
-            -- local iw = false
-            -- local ht = false
-            -- local mf = false
-            -- local tt = false
-            -- if SMODS.find_card("j_Unrivaled_the_thing") then
-            --         print("tt")
-            --         tt = true
-            -- end
-            -- if SMODS.find_card("j_Unrivaled_invisible_woman") then
-            --         print("iw")
-            --         iw = true
-            -- end
-            -- if SMODS.find_card("j_Unrivaled_mister_fantastic") then
-            --     print("mf")
-            --     mf =  true
-            -- end
-            -- if SMODS.find_card("j_Unrivaled_human_torch") then
-            --     print("ht")
-            --     ht = true
-            -- end
-            -- if iw and ht and mf and tt then
-            --     print("create f4")
-            --     SMODS.add_card({set = 'Joker', area = G.jokers, key = "j_Unrivaled_fantastic_four"}) 
-            -- end
-            if SMODS.find_card("j_Unrivaled_the_thing") and
-               SMODS.find_card("j_Unrivaled_invisible_woman") and
-               SMODS.find_card("j_Unrivaled_mister_fantastic") and 
-               SMODS.find_card("j_Unrivaled_human_torch") then
-                
+            --print("card bought")
+            --print(next(SMODS.find_card("j_Unrivaled_the_thing")))
+            if next(SMODS.find_card("j_Unrivaled_the_thing")) and
+               next(SMODS.find_card("j_Unrivaled_invisible_woman")) and
+               next(SMODS.find_card("j_Unrivaled_mister_fantastic")) and 
+               next(SMODS.find_card("j_Unrivaled_human_torch")) then
+                print("f4 present")
                 SMODS.add_card({set = 'Joker', area = G.jokers, key = "j_Unrivaled_fantastic_four"}) 
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        G.hand_text_area.blind_chips:juice_up()
+                        G.hand_text_area.game_chips:juice_up()
+                        play_sound('tarot1')
+                        card:start_dissolve()
+                        return true
+                    end
+                })) 
             end
         end
+        -- if context.card_added and not context.blueprint then 
+        --     --print("card bought")
+        --     if SMODS.find_card("j_Unrivaled_the_thing") and
+        --         SMODS.find_card("j_Unrivaled_invisible_woman") and
+        --         SMODS.find_card("j_Unrivaled_mister_fantastic") and 
+        --         SMODS.find_card("j_Unrivaled_human_torch") then
+                
+        --         SMODS.add_card({set = 'Joker', area = G.jokers, key = "j_Unrivaled_fantastic_four"}) 
+        --         G.E_MANAGER:add_event(Event({
+        --             func = function()
+        --                 G.hand_text_area.blind_chips:juice_up()
+        --                 G.hand_text_area.game_chips:juice_up()
+        --                 play_sound('tarot1')
+        --                 card:start_dissolve()
+        --                 return true
+        --             end
+        --         })) 
+        --     end
+        -- end
         if context.before and not context.individual and not context.blueprint 
         and #context.full_hand == card.ability.extra.played_hand_size_threshold then
             --print("context: ")
@@ -934,7 +1023,7 @@ SMODS.Joker {
         end
         if context.end_of_round and G.GAME.blind.boss and card.ability.extra.Xmult > 1 then
             card.ability.extra.Xmult = card.ability.extra.default_Xmult
-            return {
+            return {    
                 message = localize('k_reset'),
                 colour = G.C.RED,
                 Xmult_mod = card.ability.extra.Xmult
