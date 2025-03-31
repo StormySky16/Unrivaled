@@ -135,6 +135,12 @@ SMODS.Sound ({
     key = "nowforsomethingtrulyfantastic", path = "nowforsomethingtrulyfantastic.ogg"
 })
 
+--The Fantastic Four
+
+SMODS.Sound ({
+    key = "shieldsup", path = "shieldsup.ogg"
+})
+
 -- you can have shared helper functions
 -- function shakecard(self) --visually shake a card
 --     G.E_MANAGER:add_event(Event({
@@ -870,7 +876,7 @@ SMODS.Joker {
         }
     },
     config = { extra = { chips = 0, chip_mod = 100, Xmult = 1, Xmult_mod = 1, played_hand_size_threshold = 4, 
-                        target_card_id = 4, four = true} },
+                        target_card_id = 4, four = true, shielded = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 3, y = 1 },
@@ -882,13 +888,15 @@ SMODS.Joker {
     loc_vars =  function(self, info_queue, card)
         return { vars = {card.ability.extra.chips, card.ability.extra.chip_mod, card.ability.extra.Xmult, 
         card.ability.extra.Xmult_mod, card.ability.extra.played_hand_size_threshold, 
-        card.ability.extra.target_card_id, card.ability.extra.four} }
+        card.ability.extra.target_card_id, card.ability.extra.four, card.ability.extra.shielded} }
     end,
     
     calculate = function(self, card, context)
         if context.before and not context.individual and not context.blueprint 
         and #context.full_hand == card.ability.extra.played_hand_size_threshold then
-            --print("context: ")
+            card.ability.extra.four = true
+            card.ability.extra.shielded = false
+            print("context.before")
             --print(context)
             --print('context before, Reed')
             for i = 1, #context.scoring_hand do
@@ -917,6 +925,7 @@ SMODS.Joker {
         end
         if context.Unrivaled_protected then
             print("protected!")
+            card.ability.extra.shielded = true
         end
         if context.cardarea == G.jokers and context.joker_main and (card.ability.extra.Xmult > 1 or card.ability.extra.chips > 0) then
             return{
@@ -926,8 +935,19 @@ SMODS.Joker {
                 chip_mod = card.ability.extra.chips
             }
         end
+        if context.final_scoring_step then
+            if card.ability.extra.shielded then 
+                return {
+                    message = "Shields up!",
+                    pitch = 1,
+                    volume = 2,
+                    sound = "Unrivaled_shieldsup"
+                }
+            end
+        end
         if context.after then
-            card.ability.extra.four = true
+            
+            
         end
     end,
     in_pool = function(self, card)
