@@ -144,6 +144,11 @@ SMODS.Sound ({
 })
 
 SMODS.Sound ({
+    key = "supernova", path = "supernova.ogg"
+})
+
+
+SMODS.Sound ({
     key = "feelingfantastic", path = "feelingfantastic.ogg"
 })
 
@@ -301,7 +306,8 @@ SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
     --unlocked = true,
 
     loc_vars =  function(self, info_queue, card)
-        return { vars = {card.ability.extra.repetitions, card.ability.extra.extra_repetitions, card.ability.extra.threshold, card.ability.extra.most_recent_hand} }
+        return { vars = {card.ability.extra.repetitions, card.ability.extra.extra_repetitions,
+                        card.ability.extra.threshold, card.ability.extra.most_recent_hand} }
     end,
     
     calculate = function(self, card, context)
@@ -691,6 +697,16 @@ SMODS.Joker {
                 chip_mod = card.ability.extra.chips
             }
         end
+    end,
+    in_pool = function(self, card)
+        local jokerList = {}
+        local j = 0
+        for i,v in ipairs(G.jokers.cards) do
+            if v.name == "The Fantastic Four" then
+                return false
+            end
+        end
+        return true
     end
 }
 
@@ -742,6 +758,16 @@ SMODS.Joker {
                     card = self
                 }
         end
+    end,
+    in_pool = function(self, card)
+        local jokerList = {}
+        local j = 0
+        for i,v in ipairs(G.jokers.cards) do
+            if v.name == "The Fantastic Four" then
+                return false
+            end
+        end
+        return true
     end
 }
 
@@ -792,6 +818,16 @@ SMODS.Joker {
                 sound = "Unrivaled_disappear"
             }
         end
+    end,
+    in_pool = function(self, card)
+        local jokerList = {}
+        local j = 0
+        for i,v in ipairs(G.jokers.cards) do
+            if v.name == "The Fantastic Four" then
+                return false
+            end
+        end
+        return true
     end
 }
 
@@ -824,6 +860,40 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
+        if context.buying_card and not context.blueprint then
+            print("card bought")
+            -- local iw = false
+            -- local ht = false
+            -- local mf = false
+            -- local tt = false
+            -- if SMODS.find_card("j_Unrivaled_the_thing") then
+            --         print("tt")
+            --         tt = true
+            -- end
+            -- if SMODS.find_card("j_Unrivaled_invisible_woman") then
+            --         print("iw")
+            --         iw = true
+            -- end
+            -- if SMODS.find_card("j_Unrivaled_mister_fantastic") then
+            --     print("mf")
+            --     mf =  true
+            -- end
+            -- if SMODS.find_card("j_Unrivaled_human_torch") then
+            --     print("ht")
+            --     ht = true
+            -- end
+            -- if iw and ht and mf and tt then
+            --     print("create f4")
+            --     SMODS.add_card({set = 'Joker', area = G.jokers, key = "j_Unrivaled_fantastic_four"}) 
+            -- end
+            if SMODS.find_card("j_Unrivaled_the_thing") and
+               SMODS.find_card("j_Unrivaled_invisible_woman") and
+               SMODS.find_card("j_Unrivaled_mister_fantastic") and 
+               SMODS.find_card("j_Unrivaled_human_torch") then
+                
+                SMODS.add_card({set = 'Joker', area = G.jokers, key = "j_Unrivaled_fantastic_four"}) 
+            end
+        end
         if context.before and not context.individual and not context.blueprint 
         and #context.full_hand == card.ability.extra.played_hand_size_threshold then
             --print("context: ")
@@ -876,6 +946,14 @@ SMODS.Joker {
                 Xmult_mod = card.ability.extra.Xmult
             }
         end
+    end,
+    in_pool = function(self, card)
+        for i,v in ipairs(G.jokers.cards) do
+            if v.name == "The Fantastic Four" then
+                return false
+            end
+        end
+        return true
     end
 }
 
@@ -890,12 +968,12 @@ SMODS.Joker {
             "this Joker gains {C:chips}+#2#{} Chips and {X:mult,C:white} x#4#{} Mult,",
             "and played {C:attention}Glass Cards{} will not break.",
             "If the played hand clears the {C:attention}Blind's{}",
-            "required chips, level up the corresponding hand.",
+            "required chips, level up the corresponding hand by {C:attention}#11#{}",
             "{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips, {X:mult,C:white}x#3# {C:inactive} mult)"
         }
     },
     config = { extra = { chips = 0, chip_mod = 100, Xmult = 1, Xmult_mod = 1, played_hand_size_threshold = 4, 
-                        target_card_id = 4, four = true, shielded = false} },
+                        target_card_id = 4, four = true, shielded = false, threshold = 100, most_recent_hand = 0, hand_level_mod = 2} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 3, y = 1 },
@@ -907,10 +985,21 @@ SMODS.Joker {
     loc_vars =  function(self, info_queue, card)
         return { vars = {card.ability.extra.chips, card.ability.extra.chip_mod, card.ability.extra.Xmult, 
         card.ability.extra.Xmult_mod, card.ability.extra.played_hand_size_threshold, 
-        card.ability.extra.target_card_id, card.ability.extra.four, card.ability.extra.shielded} }
+        card.ability.extra.target_card_id, card.ability.extra.four, card.ability.extra.shielded,
+        card.ability.extra.threshold, card.ability.extra.most_recent_hand, card.ability.extra.hand_level_mod} }
     end,
     
     calculate = function(self, card, context)
+        if context.setting_blind then
+            --print('in context setting blind')
+            local current_hand = 0
+            card.ability.extra.most_recent_hand = current_hand
+            --print('most_recent_hand: '.. card.ability.extra.most_recent_hand)
+            return {
+                most_recent_hand = current_hand,
+                card = card
+            }
+        end
         if context.before and not context.individual and not context.blueprint 
         and #context.full_hand == card.ability.extra.played_hand_size_threshold then
             card.ability.extra.four = true
@@ -943,13 +1032,45 @@ SMODS.Joker {
                 }
             end
         end
-        
         if context.cardarea == G.jokers and context.joker_main and (card.ability.extra.Xmult > 1 or card.ability.extra.chips > 0) then
             return{
                 message = localize{type='variable',key='a_chips',vars={card.ability.extra.chips}}.. "chips, " ..
                 localize{type='variable',key='a_xmult',vars={card.ability.extra.Xmult}},
                 Xmult_mod = card.ability.extra.Xmult,
                 chip_mod = card.ability.extra.chips
+            }
+        end
+        if context.final_scoring_step and #context.full_hand == card.ability.extra.played_hand_size_threshold then
+            if G.GAME.selected_back.name == 'Plasma Deck' then
+                local current_hand = ((hand_chips + mult) / 2) ^ 2
+                --print('in final scoring')
+                --print('current_hand: ' .. current_hand)
+                --print('blind chips: ' .. G.GAME.blind.chips)
+                card.ability.extra.most_recent_hand = current_hand
+                return {
+                    most_recent_hand = current_hand,
+                    card = card
+                }
+            else
+                local current_hand = hand_chips * mult
+                --print('in final scoring')
+                --print('current_hand: ' .. current_hand)
+                --print('blind chips: ' .. G.GAME.blind.chips)
+                card.ability.extra.most_recent_hand = current_hand
+                return {
+                    most_recent_hand = current_hand,
+                    card = card
+                }
+            end
+        end
+        if context.debuffed_hand and #context.full_hand == card.ability.extra.played_hand_size_threshold then
+            --print('in context debuffed hand')
+            local current_hand = 0
+            card.ability.extra.most_recent_hand = current_hand
+            --print('most_recent_hand: '.. card.ability.extra.most_recent_hand)
+            return {
+                most_recent_hand = current_hand,
+                card = card
             }
         end
         if context.Unrivaled_protected then
@@ -965,8 +1086,35 @@ SMODS.Joker {
                 }
             end
         end
-        if context.after then
-            print(card.ability.extra.shielded)
+        if context.after and not context.individual and #context.full_hand == card.ability.extra.played_hand_size_threshold then
+            local current_hand = card.ability.extra.most_recent_hand
+            if current_hand ~= nil then
+                print('in context.after, current hand: ' .. current_hand)
+            else 
+                print('in context.after, current_hand == nil')
+            end
+            -- TODO: add nil check for naneinf safety
+            if card.ability.extra.most_recent_hand ~= nil then
+                --print('threshold/100: ' .. (card.ability.extra.threshold/100))
+                if card.ability.extra.most_recent_hand / G.GAME.blind.chips > (card.ability.extra.threshold/100) then
+                    print("in supernova")
+                    local text =  'Four of a Kind'
+                    --card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Supernova!"})
+                    
+                    update_hand_text({sound = 'button', volume = 0.7, pitch = 0.8, delay = 1}, {handname=localize(text, 'poker_hands'),chips = G.GAME.hands[text].chips, mult = G.GAME.hands[text].mult, level=G.GAME.hands[text].level})
+                    level_up_hand(context.blueprint_card or card, text, nil, 2)
+                    update_hand_text({sound = 'button', volume = 0.7, pitch = 1.1, delay = 0}, {mult = 0, chips = 0, handname = '', level = ''})
+                    if not context.blueprint then
+                        return {
+                            card = card,
+                            message = "Supernova!",
+                            pitch = 1,
+                            volume = 2,
+                            sound = "Unrivaled_supernova"
+                        }
+                    end
+                end
+            end
         end
     end,
     in_pool = function(self, card)
