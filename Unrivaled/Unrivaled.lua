@@ -137,8 +137,26 @@ SMODS.Sound ({
 
 --The Fantastic Four
 
+f4_lines = {"feelingfantastic", "ifeelfantastic", "torchfeelfantastic", "thingfeelfantastic"}
+
 SMODS.Sound ({
     key = "shieldsup", path = "shieldsup.ogg"
+})
+
+SMODS.Sound ({
+    key = "feelingfantastic", path = "feelingfantastic.ogg"
+})
+
+SMODS.Sound ({
+    key = "ifeelfantastic", path = "ifeelfantastic.ogg"
+})
+
+SMODS.Sound ({
+    key = "torchfeelfantastic", path = "torchfeelfantastic.ogg"
+})
+
+SMODS.Sound ({
+    key = "thingfeelfantastic", path = "thingfeelfantastic.ogg"
 })
 
 -- you can have shared helper functions
@@ -278,7 +296,7 @@ SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
     atlas = 'Unrivaled',
     pos = { x = 0, y = 0 },
     cost = 10,
-    blueprint_compat = true, --potentially false for future balancing
+    blueprint_compat = false, --potentially false for future balancing
     eternal_compat = true,
     --unlocked = true,
 
@@ -289,126 +307,128 @@ SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
     calculate = function(self, card, context)
         -- local eval = function(card) return (card.ability.extra.repetitions >= 1 and context.hand_drawn) end
         -- juice_card_until(card, eval, true)
-        local spriteCheck = function()
-            if card.ability.extra.repetitions > 0 then 
-                card.children.center:set_sprite_pos({x = 1, y = 0})
-            else 
-                card.children.center:set_sprite_pos({x = 0, y = 0})
-            end
-        end
-        spriteCheck()
-        if context.setting_blind then
-            print('in context setting blind')
-            local current_hand = 0
-            card.ability.extra.most_recent_hand = current_hand
-            print('most_recent_hand: '.. card.ability.extra.most_recent_hand)
-            return {
-                most_recent_hand = current_hand,
-                card = card
-            }
-        end
-        if context.cardarea == G.play and context.repetition and not context.repetition_only then
-            -- local current_hand = G.GAME.current_round.current_hand.chip_total
-            -- G.GAME.chips
-            -- if current_hand ~= nil then
-            --     print('in cardarea, most_recent_hand: ' .. current_hand)
-            -- else 
-            --     print('current_hand == nil')
-            -- end
-            -- print('retriggering')
-            return {
-                message = localize{'k_again_ex'},
-                repetitions = card.ability.extra.repetitions,
-                card = card
-            }
-        end
-        if context.final_scoring_step then
-            if G.GAME.selected_back.name == 'Plasma Deck' then
-                local current_hand = ((hand_chips + mult) / 2) ^ 2
-                print('in final scoring')
-                print('current_hand: ' .. current_hand)
-                print('blind chips: ' .. G.GAME.blind.chips)
-                card.ability.extra.most_recent_hand = current_hand
-                return {
-                    most_recent_hand = current_hand,
-                    card = card
-                }
-            else
-                local current_hand = hand_chips * mult
-                print('in final scoring')
-                print('current_hand: ' .. current_hand)
-                print('blind chips: ' .. G.GAME.blind.chips)
-                card.ability.extra.most_recent_hand = current_hand
-                return {
-                    most_recent_hand = current_hand,
-                    card = card
-                }
-            end
-        end
-        if context.debuffed_hand then
-            print('in context debuffed hand')
-            local current_hand = 0
-            card.ability.extra.most_recent_hand = current_hand
-            print('most_recent_hand: '.. card.ability.extra.most_recent_hand)
-            return {
-                most_recent_hand = current_hand,
-                card = card
-            }
-        end
-        -- if context.after then print('context.after is true') end
-        -- if reset then print('reset is true') end
-        -- if not reset then print('reset is false') end
-        --if self.ability.extra.repetitions > 0 then print('repetitions:', self.ability.extra.repetitions) end
-
-        if context.after and not context.individual and not context.blueprint then
-            --card.ability.extra.repetitions = 0
-            local current_hand = card.ability.extra.most_recent_hand
-            if current_hand ~= nil then
-                print('in context.after, current hand: ' .. current_hand)
-            else 
-                print('in context.after, current_hand == nil')
-            end
-            -- TODO: add nil check for naneinf safety
-            if card.ability.extra.most_recent_hand ~= nil then
-                print('threshold/100: ' .. (card.ability.extra.threshold/100))
-                if card.ability.extra.most_recent_hand / G.GAME.blind.chips < (card.ability.extra.threshold/100) then
-                    print('less than threshold')
-                    if card.ability.extra.repetitions >= 1 then
-                        card.ability.extra.repetitions = 0
-                        return {
-                            card = card,
-                            message = localize('k_reset'),
-                            pitch = 1,
-                            volume = 2.5,
-                            sound = 'Unrivaled_outofenergy'
-                        }
-                    end
-                elseif G.GAME.blind.boss then
-                    card.ability.extra.repetitions = card.ability.extra.repetitions + card.ability.extra.extra_repetitions
-                    if card.ability.extra.repetitions <= 1 then
-                        print('Armed and Dangerous!')
-                        return {
-                            message_card = card,
-                            message = 'Armed and Dangerous!',
-                            pitch = 1,
-                            volume = 2.5,
-                            sound = 'Unrivaled_armedanddangerous'
-                        }
-                    end
-                        print('again!')
-                        return {
-                            message_card = card,
-                            message = 'Again!',
-                            pitch = 1,
-                            volume = 2.5,
-                            sound = 'Unrivaled_again'
-                        }
+        if not context.blueprint then
+            local spriteCheck = function()
+                if card.ability.extra.repetitions > 0 then 
+                    card.children.center:set_sprite_pos({x = 1, y = 0})
+                else 
+                    card.children.center:set_sprite_pos({x = 0, y = 0})
                 end
-            else
-                print('most_recent_hand == nil')
             end
-            --print('in context after, reset true')
+            spriteCheck()
+            if context.setting_blind then
+                print('in context setting blind')
+                local current_hand = 0
+                card.ability.extra.most_recent_hand = current_hand
+                print('most_recent_hand: '.. card.ability.extra.most_recent_hand)
+                return {
+                    most_recent_hand = current_hand,
+                    card = card
+                }
+            end
+            if context.cardarea == G.play and context.repetition and not context.repetition_only then
+                -- local current_hand = G.GAME.current_round.current_hand.chip_total
+                -- G.GAME.chips
+                -- if current_hand ~= nil then
+                --     print('in cardarea, most_recent_hand: ' .. current_hand)
+                -- else 
+                --     print('current_hand == nil')
+                -- end
+                -- print('retriggering')
+                return {
+                    message = localize{'k_again_ex'},
+                    repetitions = card.ability.extra.repetitions,
+                    card = card
+                }
+            end
+            if context.final_scoring_step then
+                if G.GAME.selected_back.name == 'Plasma Deck' then
+                    local current_hand = ((hand_chips + mult) / 2) ^ 2
+                    print('in final scoring')
+                    print('current_hand: ' .. current_hand)
+                    print('blind chips: ' .. G.GAME.blind.chips)
+                    card.ability.extra.most_recent_hand = current_hand
+                    return {
+                        most_recent_hand = current_hand,
+                        card = card
+                    }
+                else
+                    local current_hand = hand_chips * mult
+                    print('in final scoring')
+                    print('current_hand: ' .. current_hand)
+                    print('blind chips: ' .. G.GAME.blind.chips)
+                    card.ability.extra.most_recent_hand = current_hand
+                    return {
+                        most_recent_hand = current_hand,
+                        card = card
+                    }
+                end
+            end
+            if context.debuffed_hand then
+                print('in context debuffed hand')
+                local current_hand = 0
+                card.ability.extra.most_recent_hand = current_hand
+                print('most_recent_hand: '.. card.ability.extra.most_recent_hand)
+                return {
+                    most_recent_hand = current_hand,
+                    card = card
+                }
+            end
+            -- if context.after then print('context.after is true') end
+            -- if reset then print('reset is true') end
+            -- if not reset then print('reset is false') end
+            --if self.ability.extra.repetitions > 0 then print('repetitions:', self.ability.extra.repetitions) end
 
+            if context.after and not context.individual then
+                --card.ability.extra.repetitions = 0
+                local current_hand = card.ability.extra.most_recent_hand
+                if current_hand ~= nil then
+                    print('in context.after, current hand: ' .. current_hand)
+                else 
+                    print('in context.after, current_hand == nil')
+                end
+                -- TODO: add nil check for naneinf safety
+                if card.ability.extra.most_recent_hand ~= nil then
+                    print('threshold/100: ' .. (card.ability.extra.threshold/100))
+                    if card.ability.extra.most_recent_hand / G.GAME.blind.chips < (card.ability.extra.threshold/100) then
+                        print('less than threshold')
+                        if card.ability.extra.repetitions >= 1 then
+                            card.ability.extra.repetitions = 0
+                            return {
+                                card = card,
+                                message = localize('k_reset'),
+                                pitch = 1,
+                                volume = 2.5,
+                                sound = 'Unrivaled_outofenergy'
+                            }
+                        end
+                    elseif G.GAME.blind.boss then
+                        card.ability.extra.repetitions = card.ability.extra.repetitions + card.ability.extra.extra_repetitions
+                        if card.ability.extra.repetitions <= 1 then
+                            print('Armed and Dangerous!')
+                            return {
+                                message_card = card,
+                                message = 'Armed and Dangerous!',
+                                pitch = 1,
+                                volume = 2.5,
+                                sound = 'Unrivaled_armedanddangerous'
+                            }
+                        end
+                            print('again!')
+                            return {
+                                message_card = card,
+                                message = 'Again!',
+                                pitch = 1,
+                                volume = 2.5,
+                                sound = 'Unrivaled_again'
+                            }
+                    end
+                else
+                    print('most_recent_hand == nil')
+                end
+                --print('in context after, reset true')
+
+            end
         end
     end
 }
@@ -869,7 +889,6 @@ SMODS.Joker {
             "{C:attention}#5#{} cards and is a {C:attention}Four of a Kind{} of {C:attention}#6#{}s,", 
             "this Joker gains {C:chips}+#2#{} Chips and {X:mult,C:white} x#4#{} Mult,",
             "and played {C:attention}Glass Cards{} will not break.",
-            "when {C:attention}Boss Blind{} is defeated",
             "If the played hand clears the {C:attention}Blind's{}",
             "required chips, level up the corresponding hand.",
             "{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips, {X:mult,C:white}x#3# {C:inactive} mult)"
@@ -896,7 +915,8 @@ SMODS.Joker {
         and #context.full_hand == card.ability.extra.played_hand_size_threshold then
             card.ability.extra.four = true
             card.ability.extra.shielded = false
-            print("context.before")
+            --card.ability.extra.shielded = false
+            --print("context.before")
             --print(context)
             --print('context before, Reed')
             for i = 1, #context.scoring_hand do
@@ -908,7 +928,7 @@ SMODS.Joker {
                 end
             end
             if card.ability.extra.four then
-                local voice_line = "Unrivaled_" .. pseudorandom_element(fantastic_lines, pseudoseed('fantasticfamily'))
+                local voice_line = "Unrivaled_" .. pseudorandom_element(f4_lines, pseudoseed('fantasticfamily'))
                 card.ability.extra.Xmult = card.ability.extra.Xmult + card.ability.extra.Xmult_mod
                 card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.chip_mod
                 --print("returning fantastic")
@@ -923,10 +943,7 @@ SMODS.Joker {
                 }
             end
         end
-        if context.Unrivaled_protected then
-            print("protected!")
-            card.ability.extra.shielded = true
-        end
+        
         if context.cardarea == G.jokers and context.joker_main and (card.ability.extra.Xmult > 1 or card.ability.extra.chips > 0) then
             return{
                 message = localize{type='variable',key='a_chips',vars={card.ability.extra.chips}}.. "chips, " ..
@@ -935,10 +952,13 @@ SMODS.Joker {
                 chip_mod = card.ability.extra.chips
             }
         end
-        if context.final_scoring_step then
-            if card.ability.extra.shielded then 
+        if context.Unrivaled_protected then
+            print("protected!")
+            if not card.ability.extra.shielded then
+                card.ability.extra.shielded = true
                 return {
                     message = "Shields up!",
+                    colour = G.C.CHIPS,
                     pitch = 1,
                     volume = 2,
                     sound = "Unrivaled_shieldsup"
@@ -946,8 +966,7 @@ SMODS.Joker {
             end
         end
         if context.after then
-            
-            
+            print(card.ability.extra.shielded)
         end
     end,
     in_pool = function(self, card)
