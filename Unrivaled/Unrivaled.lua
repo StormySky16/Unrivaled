@@ -652,7 +652,7 @@ SMODS.Joker {
     end
 }
 
---The Thing
+--The Thing --TODO fix all F4 Jokers spawn pools 
 SMODS.Joker {
     key = 'the_thing',
     loc_txt = {
