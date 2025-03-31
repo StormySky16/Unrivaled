@@ -668,6 +668,7 @@ SMODS.Joker {
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 5, y = 0 },
+    no_pool_flag = "fantastic_four",
     cost = 8,
     blueprint_compat = true,
     eternal_compat = true,
@@ -725,16 +726,6 @@ SMODS.Joker {
                 chip_mod = card.ability.extra.chips
             }
         end
-    end,
-    in_pool = function(self, card)
-        local jokerList = {}
-        local j = 0
-        for i,v in ipairs(G.jokers.cards) do
-            if v.name == "The Fantastic Four" then
-                return false
-            end
-        end
-        return true
     end
 }
 
@@ -754,6 +745,7 @@ SMODS.Joker {
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 0, y = 1 },
+    no_pool_flag = "fantastic_four",
     cost = 8,
     blueprint_compat = true,
     eternal_compat = true,
@@ -814,16 +806,6 @@ SMODS.Joker {
                     card = self
                 }
         end
-    end,
-    in_pool = function(self, card)
-        local jokerList = {}
-        local j = 0
-        for i,v in ipairs(G.jokers.cards) do
-            if v.name == "The Fantastic Four" then
-                return false
-            end
-        end
-        return true
     end
 }
 
@@ -842,6 +824,7 @@ SMODS.Joker {
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 1, y = 1 },
+    no_pool_flag = "fantastic_four",
     cost = 8,
     blueprint_compat = false,
     eternal_compat = true,
@@ -902,16 +885,6 @@ SMODS.Joker {
                 sound = "Unrivaled_disappear"
             }
         end
-    end,
-    in_pool = function(self, card)
-        local jokerList = {}
-        local j = 0
-        for i,v in ipairs(G.jokers.cards) do
-            if v.name == "The Fantastic Four" then
-                return false
-            end
-        end
-        return true
     end
 }
 
@@ -932,6 +905,7 @@ SMODS.Joker {
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 2, y = 1 },
+    no_pool_flag = "fantastic_four",
     cost = 8,
     blueprint_compat = true,
     eternal_compat = true,
@@ -1035,14 +1009,6 @@ SMODS.Joker {
                 Xmult_mod = card.ability.extra.Xmult
             }
         end
-    end,
-    in_pool = function(self, card)
-        for i,v in ipairs(G.jokers.cards) do
-            if v.name == "The Fantastic Four" then
-                return false
-            end
-        end
-        return true
     end
 }
 
@@ -1079,6 +1045,12 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
+        if context.buying_card and not context.blueprint then
+            print("in buying card context")
+            if next(SMODS.find_card("j_Unrivaled_fantastic_four")) then
+                G.GAME.pool_flags.fantastic_four = true
+            end
+        end
         if context.setting_blind then
             --print('in context setting blind')
             local current_hand = 0
@@ -1204,6 +1176,14 @@ SMODS.Joker {
                     end
                 end
             end
+        end
+        if context.selling_self and not context.blueprint then
+            G.GAME.pool_flags.fantastic_four = false
+            print("flag unchecked")
+        end
+        if context.getting_sliced and not context.blueprint then
+            G.GAME.pool_flags.fantastic_four = false
+            print("flag unchecked")
         end
     end,
     in_pool = function(self, card)
