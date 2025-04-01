@@ -1142,7 +1142,7 @@ SMODS.Joker {
 
 
 --Adam Warlock
-SMODS.Joker { --TODO: Need to implement Lovely Patch to change saved by mr. bones text
+SMODS.Joker { 
     key = 'adam_warlock',
     loc_txt = {
         name = "Adam Warlock",
@@ -1197,6 +1197,8 @@ SMODS.Joker { --TODO: Need to implement Lovely Patch to change saved by mr. bone
             end
         end
         if context.game_over and card.ability.extra.tarot_count >= card.ability.extra.tarot_requirement and not context.blueprint then
+            G.GAME.current_round.usesavedtext = true
+			G.GAME.current_round.savedtext = "Saved by Adam Warlock"
             G.E_MANAGER:add_event(Event({
                 func = function()
                     G.hand_text_area.blind_chips:juice_up()
