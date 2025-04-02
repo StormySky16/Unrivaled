@@ -662,6 +662,8 @@ SMODS.Joker {
     end
 }
 
+--Fantastic Four Jokers need to be updated to address edge case of debuffed Jokers and Duplicated Jokers
+
 --The Thing 
 SMODS.Joker {
     key = 'the_thing',
