@@ -174,6 +174,13 @@ SMODS.Sound ({
     key = "unlimitedcosmicmight", path = "unlimitedcosmicmight.ogg"
 })
 
+--Moon Knight Lines
+
+SMODS.Sound ({
+    key = "themoo", path = "themoo.ogg"
+})
+
+
 -- you can have shared helper functions
 -- function shakecard(self) --visually shake a card
 --     G.E_MANAGER:add_event(Event({
@@ -1334,6 +1341,69 @@ SMODS.Joker {
                 volume = 2,
                 sound = "Unrivaled_bornagain"
         }
+        end
+    end
+}
+
+--Moon Knight
+SMODS.Joker {
+    key = 'moon_knight',
+    loc_txt = {
+        name = "Moon Knight",
+        text = {
+            "If played hand contains exactly",
+            "{C:attention}#1#{} cards, contains a {C:attention}Three of a Kind{},",
+            "and only contains {C:clubs}Clubs{},",
+            "retrigger each card {C:attention}#2#{} times"
+        }
+    },
+    config = { extra = { played_hand_size_threshold = 3 , repetitions = 3, only_spades = true} },
+    rarity = "Unrivaled_heroic",
+    atlas = 'Unrivaled',
+    pos = { x = 5, y = 1 },
+    cost = 6,
+    blueprint_compat = true, 
+    eternal_compat = true,
+    --unlocked = true,
+    
+    loc_vars =  function(self, info_queue, card)
+        return { vars = {card.ability.extra.played_hand_size_threshold, card.ability.extra.repetitions, card.ability.extra.only_spades} }
+    end,
+    
+    calculate = function(self, card, context)
+        if context.before and not context.individual and not context.blueprint then
+            card.ability.extra.king_of_spades = true
+            --print("context: ")
+            --print(context)
+            print('context before, MK')
+            for i = 1, #context.scoring_hand do
+                print('i: ' .. i)
+                --These lines can crash game on debuff boss blinds due to nil
+                --print('card i == king: '.. tostring(context.scoring_hand[i]:get_id() == 13))
+                --print('card i == spades: '.. tostring(context.scoring_hand[i]:is_suit("Spades"))) 
+                if not context.scoring_hand[i]:is_suit("Clubs") then
+                    print(card.ability.extra.king_of_spades)
+                    card.ability.extra.king_of_spades = false
+                end
+            end
+            if card.ability.extra.king_of_spades then
+                print("returning the moo")
+                --play_sound("Unrivaled_tremblebeforebast", 1, 2.5)
+                return{
+                    message_card = card,
+                    message =  "The Moon haunts you!",
+                    pitch = 1,
+                    volume = 2.5,
+                    sound = "Unrivaled_themoo"
+                }
+            end
+        end
+        if context.cardarea == G.play and context.repetition and not context.repetition_only and card.ability.extra.only_spades then
+            return {
+                message = localize('k_again_ex'),
+                repetitions = card.ability.extra.repetitions,
+                card = card
+            }
         end
     end
 }
