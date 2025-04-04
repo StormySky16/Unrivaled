@@ -1357,7 +1357,7 @@ SMODS.Joker {
             "retrigger each card {C:attention}#2#{} times"
         }
     },
-    config = { extra = { played_hand_size_threshold = 3 , repetitions = 3, only_spades = true} },
+    config = { extra = { played_hand_size_threshold = 3 , repetitions = 3, only_clubs = true} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 5, y = 1 },
@@ -1372,21 +1372,18 @@ SMODS.Joker {
     
     calculate = function(self, card, context)
         if context.before and not context.individual and not context.blueprint then
-            card.ability.extra.king_of_spades = true
+            card.ability.extra.clubs = true
             --print("context: ")
             --print(context)
             print('context before, MK')
             for i = 1, #context.scoring_hand do
-                print('i: ' .. i)
-                --These lines can crash game on debuff boss blinds due to nil
-                --print('card i == king: '.. tostring(context.scoring_hand[i]:get_id() == 13))
-                --print('card i == spades: '.. tostring(context.scoring_hand[i]:is_suit("Spades"))) 
                 if not context.scoring_hand[i]:is_suit("Clubs") then
-                    print(card.ability.extra.king_of_spades)
-                    card.ability.extra.king_of_spades = false
+                    --print(card.ability.extra.only_clubs)
+                    card.ability.extra.only_clubs = false
                 end
             end
-            if card.ability.extra.king_of_spades then
+            if context.before and next(context.poker_hands['Three of a Kind']) and 
+            #context.full_hand == card.ability.extra.played_hand_size_threshold and card.ability.extra.only_clubs then
                 print("returning the moo")
                 --play_sound("Unrivaled_tremblebeforebast", 1, 2.5)
                 return{
@@ -1398,7 +1395,10 @@ SMODS.Joker {
                 }
             end
         end
-        if context.cardarea == G.play and context.repetition and not context.repetition_only and card.ability.extra.only_spades then
+        if context.before and next(context.poker_hands['Three of a Kind']) and 
+           #context.full_hand == card.ability.extra.played_hand_size_threshold and 
+           context.cardarea == G.play and context.repetition and not context.repetition_only 
+           and card.ability.extra.only_clubs then
             return {
                 message = localize('k_again_ex'),
                 repetitions = card.ability.extra.repetitions,
