@@ -290,6 +290,85 @@ SMODS.Sound ({
 -- 	end
 -- }
 
+fantastic_eval = function(card, context) 
+    -- print(next(SMODS.find_card("j_Unrivaled_the_thing"))~= nil)
+    -- print(next(SMODS.find_card("j_Unrivaled_invisible_woman"))~= nil)
+    -- print(next(SMODS.find_card("j_Unrivaled_mister_fantastic"))~= nil)
+    -- print(next(SMODS.find_card("j_Unrivaled_human_torch"))~= nil)
+    
+    for i=1, #G.jokers.cards do 
+        if G.jokers.cards[i].config.center.key == "j_Unrivaled_invisible_woman" then
+            print("invis")
+        end
+        if G.jokers.cards[i].config.center.key == "j_Unrivaled_the_thing" then
+            print("thing")
+        end
+        if G.jokers.cards[i].config.center.key == "j_Unrivaled_mister_fantastic" then
+            print("fantastic")
+        end
+        if G.jokers.cards[i].config.center.key == "j_Unrivaled_human_torch" then
+            print("torch")
+        end
+    end
+    print("fantastic eval")
+    local invisible_woman = false
+    local the_thing = false
+    local human_torch = false
+    local mister_fantastic = false
+    if next(SMODS.find_card("j_Unrivaled_invisible_woman"))  then
+        invisible_woman = true
+    end
+    if next(SMODS.find_card("j_Unrivaled_human_torch"))  then
+        human_torch = true
+    end
+    if next(SMODS.find_card("j_Unrivaled_mister_fantastic"))  then
+        mister_fantastic = true
+    end
+    if next(SMODS.find_card("j_Unrivaled_the_thing"))  then
+        the_thing = true
+    end
+    -- print(invisible_woman)
+    -- print(the_thing)
+    -- print(human_torch)
+    -- print(mister_fantastic)
+    if invisible_woman and
+       the_thing and
+       human_torch and 
+       mister_fantastic then
+        print("f4 present")
+        local iw = false
+        local ht = false
+        local tt = false
+        local mf = false
+        for i=1, #G.jokers.cards do 
+            if G.jokers.cards[i].config.center.key == "j_Unrivaled_invisible_woman" and not iw then
+                play_sound('tarot1')
+                G.jokers.cards[i]:start_dissolve()
+                iw = true
+            end
+            if G.jokers.cards[i].config.center.key == "j_Unrivaled_human_torch" and not ht then
+                play_sound('tarot1')
+                G.jokers.cards[i]:start_dissolve()
+                ht = true
+            end
+            if G.jokers.cards[i].config.center.key == "j_Unrivaled_the_thing" and not tt then
+                play_sound('tarot1')
+                G.jokers.cards[i]:start_dissolve()
+                tt = true
+            end
+            if G.jokers.cards[i].config.center.key == "j_Unrivaled_mister_fantastic" and not mf then
+                play_sound('tarot1')
+                G.jokers.cards[i]:start_dissolve()
+                mf = true
+            end
+        end
+        if iw and ht and tt and mf and not card.ability.extra.flag then
+            card.ability.extra.flag = true
+            SMODS.add_card({set = 'Joker', area = G.jokers, key = "j_Unrivaled_fantastic_four"})
+        end
+    end
+end
+
 --Winter Soldier
 SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
     key = 'winter_soldier',
@@ -691,20 +770,33 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
-        if context.buying_card and not context.blueprint then
-            --print("card bought")
-            if next(SMODS.find_card("j_Unrivaled_fantastic_four")) then
-                G.E_MANAGER:add_event(Event({
-                    func = function()
-                        G.hand_text_area.blind_chips:juice_up()
-                        G.hand_text_area.game_chips:juice_up()
-                        play_sound('tarot1')
-                        card:start_dissolve()
-                        return true
-                    end
-                })) 
+        if context.joker_created and not context.blueprint then
+            print("card added")
+            print((context.card_added and context.card ~= card))
+            print((context.buying_card and context.card == card))
+            if context.card.ability.set == "Joker" and context.card.config.center.rarity == "Unrivaled_heroic" then
+                print("card is joker")
+                print(context.card.config.center.key)
+                if context.card.config.center.key ~= "j_Unrivaled_fantastic_four" then
+                    print("eval call")
+                    fantastic_eval(card, context)
+                end
             end
         end
+        -- if context.buying_card and not context.blueprint then
+        --     --print("card bought")
+        --     if next(SMODS.find_card("j_Unrivaled_fantastic_four")) then
+        --         G.E_MANAGER:add_event(Event({
+        --             func = function()
+        --                 G.hand_text_area.blind_chips:juice_up()
+        --                 G.hand_text_area.game_chips:juice_up()
+        --                 play_sound('tarot1')
+        --                 card:start_dissolve()
+        --                 return true
+        --             end
+        --         })) 
+        --     end
+        -- end
         if context.before and next(context.poker_hands['Four of a Kind']) and 
         #context.full_hand == card.ability.extra.played_hand_size_threshold and not context.blueprint then
             local voice_line = "Unrivaled_" .. pseudorandom_element(thing_lines, pseudoseed('itsclobberintime'))
@@ -754,20 +846,33 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
-        if context.buying_card and not context.blueprint then
-            --print("card bought")
-            if next(SMODS.find_card("j_Unrivaled_fantastic_four")) then
-                G.E_MANAGER:add_event(Event({
-                    func = function()
-                        G.hand_text_area.blind_chips:juice_up()
-                        G.hand_text_area.game_chips:juice_up()
-                        play_sound('tarot1')
-                        card:start_dissolve()
-                        return true
-                    end
-                })) 
+        if context.joker_created and not context.blueprint then
+            print("card added")
+            print((context.card_added and context.card ~= card))
+            print((context.buying_card and context.card == card))
+            if context.card.ability.set == "Joker" and context.card.config.center.rarity == "Unrivaled_heroic" then
+                print("card is joker")
+                print(context.card.config.center.key)
+                if context.card.config.center.key ~= "j_Unrivaled_fantastic_four" then
+                    print("eval call")
+                    fantastic_eval(card, context)
+                end
             end
         end
+        -- if context.buying_card and not context.blueprint then
+        --     --print("card bought")
+        --     if next(SMODS.find_card("j_Unrivaled_fantastic_four")) then
+        --         G.E_MANAGER:add_event(Event({
+        --             func = function()
+        --                 G.hand_text_area.blind_chips:juice_up()
+        --                 G.hand_text_area.game_chips:juice_up()
+        --                 play_sound('tarot1')
+        --                 card:start_dissolve()
+        --                 return true
+        --             end
+        --         })) 
+        --     end
+        -- end
         if not context.blueprint and context.first_hand_drawn then
             local eval = function(card) return G.GAME.current_round.discards_used == 0 and not G.RESET_JIGGLES end
             juice_card_until(card, eval, true)
@@ -819,20 +924,34 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
-        if context.buying_card and not context.blueprint then
-            --print("card bought")
-            if next(SMODS.find_card("j_Unrivaled_fantastic_four")) then
-                G.E_MANAGER:add_event(Event({
-                    func = function()
-                        G.hand_text_area.blind_chips:juice_up()
-                        G.hand_text_area.game_chips:juice_up()
-                        play_sound('tarot1')
-                        card:start_dissolve()
-                        return true
-                    end
-                })) 
+        if context.joker_created and not context.blueprint then
+            print("card added")
+            print((context.card_added and context.card ~= card))
+            print((context.buying_card and context.card == card))
+            if context.card.ability.set == "Joker" and context.card.config.center.rarity == "Unrivaled_heroic" then
+                print("card is joker")
+                print(context.card.config.center.key)
+                if context.card.config.center.key ~= "j_Unrivaled_fantastic_four" then
+                    print("eval call")
+                    fantastic_eval(card, context)
+                end
             end
         end
+        -- if context.buying_card and not context.blueprint then
+        --     --print("card bought")
+        --     if next(SMODS.find_card("j_Unrivaled_fantastic_four")) then
+        --         --print("found f4")
+        --         G.E_MANAGER:add_event(Event({
+        --             func = function()
+        --                 G.hand_text_area.blind_chips:juice_up()
+        --                 G.hand_text_area.game_chips:juice_up()
+        --                 play_sound('tarot1')
+        --                 card:start_dissolve()
+        --                 return true
+        --             end
+        --         })) 
+        --     end
+        -- end
         if context.before and #context.full_hand == card.ability.extra.played_hand_size_threshold and not context.blueprint then
             --local voice_line = "Unrivaled_" .. pseudorandom_element(invisible_lines, pseudoseed('disappear'))
             local cards = {}
@@ -871,7 +990,8 @@ SMODS.Joker {
             "{C:inactive}(Currently {X:mult,C:white}x#1#{}{C:inactive})"
         }
     },
-    config = { extra = { Xmult = 1, Xmult_mod = 1, played_hand_size_threshold = 4, target_card_id = 4, default_Xmult = 1, four = false} },
+    config = { extra = { Xmult = 1, Xmult_mod = 1, played_hand_size_threshold = 4, target_card_id = 4, default_Xmult = 1, 
+               four = false, flag = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 2, y = 1 },
@@ -884,30 +1004,26 @@ SMODS.Joker {
     loc_vars =  function(self, info_queue, card)
         return { vars = {card.ability.extra.Xmult, card.ability.extra.Xmult_mod, 
         card.ability.extra.played_hand_size_threshold, card.ability.extra.target_card_id,
-        card.ability.extra.default_Xmult, card.ability.extra.four} }
+        card.ability.extra.default_Xmult, card.ability.extra.four, card.ability.extra.flag} }
     end,
     
     calculate = function(self, card, context)
-        if context.buying_card and not context.blueprint then
-            --print("card bought")
-            --print(next(SMODS.find_card("j_Unrivaled_the_thing")))
-            if next(SMODS.find_card("j_Unrivaled_the_thing")) and
-               next(SMODS.find_card("j_Unrivaled_invisible_woman")) and
-               next(SMODS.find_card("j_Unrivaled_mister_fantastic")) and 
-               next(SMODS.find_card("j_Unrivaled_human_torch")) then
-                print("f4 present")
-                SMODS.add_card({set = 'Joker', area = G.jokers, key = "j_Unrivaled_fantastic_four"}) 
-                G.E_MANAGER:add_event(Event({
-                    func = function()
-                        G.hand_text_area.blind_chips:juice_up()
-                        G.hand_text_area.game_chips:juice_up()
-                        play_sound('tarot1')
-                        card:start_dissolve()
-                        return true
-                    end
-                })) 
+        if context.joker_created and not context.blueprint then
+            print("card added")
+            print((context.card_added and context.card ~= card))
+            print((context.buying_card and context.card == card))
+            if context.card.ability.set == "Joker" and context.card.config.center.rarity == "Unrivaled_heroic" then
+                print("card is joker")
+                print(context.card.config.center.key)
+                if context.card.config.center.key ~= "j_Unrivaled_fantastic_four" then
+                    print("eval call")
+                    fantastic_eval(card, context)
+                end
             end
         end
+        -- if context.card_added then
+        --     print('card added context')
+        -- end
         if context.before and not context.individual and not context.blueprint 
         and #context.full_hand == card.ability.extra.played_hand_size_threshold then
             --print("context: ")

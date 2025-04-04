@@ -7,14 +7,14 @@ priority = 5
 [patches.pattern]
 target = '=[SMODS _ "src/utils.lua"]'
 pattern = '''
-if scoring_hand and SMODS.has_enhancement(card, 'm_glass') and not card.debuff and pseudorandom('glass') < G.GAME.probabilities.normal/(card.ability.name == 'Glass Card' and card.ability.extra or G.P_CENTERS.m_glass.config.extra) then
+if scoring_hand and in_scoring and SMODS.has_enhancement(card, 'm_glass') and card:can_calculate() and pseudorandom('glass') < G.GAME.probabilities.normal/(card.ability.name == 'Glass Card' and card.ability.extra or G.P_CENTERS.m_glass.config.extra) then
     destroyed = true
 end
 '''
 position = 'at'
 match_indent = true
 payload = '''
-        if scoring_hand and SMODS.has_enhancement(card, 'm_glass') and not card.debuff and pseudorandom('glass') < G.GAME.probabilities.normal/(card.ability.name == 'Glass Card' and card.ability.extra or G.P_CENTERS.m_glass.config.extra) then
+        if scoring_hand and in_scoring and SMODS.has_enhancement(card, 'm_glass') and card:can_calculate() and pseudorandom('glass') < G.GAME.probabilities.normal/(card.ability.name == 'Glass Card' and card.ability.extra or G.P_CENTERS.m_glass.config.extra) then
             if (next(SMODS.find_card("j_Unrivaled_fantastic_four"))) then
                 if #context.full_hand == 4 and card:get_id() == 4 then
                     card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Protected!", G.C.CHIPS})
