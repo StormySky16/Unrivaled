@@ -298,19 +298,19 @@ fantastic_eval = function(card, context)
     
     for i=1, #G.jokers.cards do 
         if G.jokers.cards[i].config.center.key == "j_Unrivaled_invisible_woman" then
-            print("invis")
+            --print("invis")
         end
         if G.jokers.cards[i].config.center.key == "j_Unrivaled_the_thing" then
-            print("thing")
+            --print("thing")
         end
         if G.jokers.cards[i].config.center.key == "j_Unrivaled_mister_fantastic" then
-            print("fantastic")
+            --print("fantastic")
         end
         if G.jokers.cards[i].config.center.key == "j_Unrivaled_human_torch" then
-            print("torch")
+            --print("torch")
         end
     end
-    print("fantastic eval")
+    -- print("fantastic eval")
     local invisible_woman = false
     local the_thing = false
     local human_torch = false
@@ -335,7 +335,7 @@ fantastic_eval = function(card, context)
        the_thing and
        human_torch and 
        mister_fantastic then
-        print("f4 present")
+        -- print("f4 present")
         local iw = false
         local ht = false
         local tt = false
@@ -741,7 +741,8 @@ SMODS.Joker {
     end
 }
 
---Fantastic Four Jokers need to be updated to address edge case of debuffed Jokers and Duplicated Jokers
+--Fantastic Four Jokers need to be updated to address edge case of debuffed Jokers and Duplicated Jokers--
+--Tentatively Complete!
 
 --The Thing 
 SMODS.Joker {
@@ -755,7 +756,7 @@ SMODS.Joker {
             "{C:inactive}(Currently {C:chips}+#1# Chips{}{C:inactive})"
         }
     },
-    config = { extra = { chips = 0, chip_gain = 50, played_hand_size_threshold = 4} },
+    config = { extra = { chips = 0, chip_gain = 50, played_hand_size_threshold = 4, flag = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 5, y = 0 },
@@ -766,20 +767,20 @@ SMODS.Joker {
     --unlocked = true,
     
     loc_vars =  function(self, info_queue, card)
-        return { vars = {card.ability.extra.chips, card.ability.extra.chip_gain, card.ability.extra.played_hand_size_threshold} }
+        return { vars = {card.ability.extra.chips, card.ability.extra.chip_gain, card.ability.extra.played_hand_size_threshold, card.ability.extra.flag} }
     end,
     
     calculate = function(self, card, context)
-        if context.joker_created and not context.blueprint then
-            print("card added")
-            print((context.card_added and context.card ~= card))
-            print((context.buying_card and context.card == card))
-            if context.card.ability.set == "Joker" and context.card.config.center.rarity == "Unrivaled_heroic" then
-                print("card is joker")
-                print(context.card.config.center.key)
+        if (context.buying_card and context.card.ability.set == 'Joker') or (context.joker_created and context.card.area == G.jokers) and not context.blueprint then
+            -- print("card added")
+            -- print((context.card_added and context.card ~= card))
+            -- print((context.buying_card and context.card == card))
+            if context.card.config.center.rarity == "Unrivaled_heroic" then
+                -- print("card is joker")
+                -- print(context.card.config.center.key)
                 if context.card.config.center.key ~= "j_Unrivaled_fantastic_four" then
-                    print("eval call")
-                    fantastic_eval(card, context)
+                    -- print("eval call")
+                    fantastic_eval(context.card, context)
                 end
             end
         end
@@ -831,7 +832,7 @@ SMODS.Joker {
             "of the corresponding hand"
         }
     },
-    config = { extra = {discarded_hand_size_threshold = 4} },
+    config = { extra = {discarded_hand_size_threshold = 4, flag = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 0, y = 1 },
@@ -842,20 +843,20 @@ SMODS.Joker {
     --unlocked = true,
     
     loc_vars =  function(self, info_queue, card)
-        return { vars = {card.ability.extra.discarded_hand_size_threshold} }
+        return { vars = {card.ability.extra.discarded_hand_size_threshold, card.ability.extra.flag} }
     end,
     
     calculate = function(self, card, context)
-        if context.joker_created and not context.blueprint then
-            print("card added")
-            print((context.card_added and context.card ~= card))
-            print((context.buying_card and context.card == card))
-            if context.card.ability.set == "Joker" and context.card.config.center.rarity == "Unrivaled_heroic" then
-                print("card is joker")
-                print(context.card.config.center.key)
+        if (context.buying_card and context.card.ability.set == 'Joker') or (context.joker_created and context.card.area == G.jokers) and not context.blueprint then
+            -- print("card added")
+            -- print((context.card_added and context.card ~= card))
+            -- print((context.buying_card and context.card == card))
+            if context.card.config.center.rarity == "Unrivaled_heroic" then
+                -- print("card is joker")
+                -- print(context.card.config.center.key)
                 if context.card.config.center.key ~= "j_Unrivaled_fantastic_four" then
-                    print("eval call")
-                    fantastic_eval(card, context)
+                    -- print("eval call")
+                    fantastic_eval(context.card, context)
                 end
             end
         end
@@ -909,7 +910,7 @@ SMODS.Joker {
             "scored cards become {C:attention}Glass Cards{}"
         }
     },
-    config = { extra = {played_hand_size_threshold = 4} },
+    config = { extra = {played_hand_size_threshold = 4, flag = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 1, y = 1 },
@@ -920,20 +921,20 @@ SMODS.Joker {
     --unlocked = true,
     
     loc_vars =  function(self, info_queue, card)
-        return { vars = {card.ability.extra.played_hand_size_threshold} }
+        return { vars = {card.ability.extra.played_hand_size_threshold, card.ability.extra.flag} }
     end,
     
     calculate = function(self, card, context)
-        if context.joker_created and not context.blueprint then
-            print("card added")
-            print((context.card_added and context.card ~= card))
-            print((context.buying_card and context.card == card))
-            if context.card.ability.set == "Joker" and context.card.config.center.rarity == "Unrivaled_heroic" then
-                print("card is joker")
-                print(context.card.config.center.key)
+        if (context.buying_card and context.card.ability.set == 'Joker') or (context.joker_created and context.card.area == G.jokers) and not context.blueprint then
+            -- print("card added")
+            -- print((context.card_added and context.card ~= card))
+            -- print((context.buying_card and context.card == card))
+            if context.card.config.center.rarity == "Unrivaled_heroic" then
+                -- print("card is joker")
+                -- print(context.card.config.center.key)
                 if context.card.config.center.key ~= "j_Unrivaled_fantastic_four" then
-                    print("eval call")
-                    fantastic_eval(card, context)
+                    -- print("eval call")
+                    fantastic_eval(context.card, context)
                 end
             end
         end
@@ -1008,16 +1009,16 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
-        if context.joker_created and not context.blueprint then
-            print("card added")
-            print((context.card_added and context.card ~= card))
-            print((context.buying_card and context.card == card))
-            if context.card.ability.set == "Joker" and context.card.config.center.rarity == "Unrivaled_heroic" then
-                print("card is joker")
-                print(context.card.config.center.key)
+        if (context.buying_card and context.card.ability.set == 'Joker') or (context.joker_created and context.card.area == G.jokers) and not context.blueprint then
+            -- print("card added")
+            -- print((context.card_added and context.card ~= card))
+            -- print((context.buying_card and context.card == card))
+            if context.card.config.center.rarity == "Unrivaled_heroic" then
+                -- print("card is joker")
+                -- print(context.card.config.center.key)
                 if context.card.config.center.key ~= "j_Unrivaled_fantastic_four" then
-                    print("eval call")
-                    fantastic_eval(card, context)
+                    -- print("eval call")
+                    fantastic_eval(context.card, context)
                 end
             end
         end
@@ -1094,7 +1095,7 @@ SMODS.Joker {
             "{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips, {X:mult,C:white}x#3# {C:inactive} mult)"
         }
     },
-    config = { extra = { chips = 0, chip_mod = 100, Xmult = 1, Xmult_mod = 1, played_hand_size_threshold = 4, 
+    config = { extra = { chips = 0, chip_mod = 400, Xmult = 1, Xmult_mod = 4, played_hand_size_threshold = 4, 
                         target_card_id = 4, four = true, shielded = false, threshold = 100, most_recent_hand = 0, hand_level_mod = 2} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
