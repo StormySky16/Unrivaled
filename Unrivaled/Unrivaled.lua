@@ -885,7 +885,8 @@ SMODS.Joker {
             local eval = function(card) return G.GAME.current_round.discards_used == 0 and not G.RESET_JIGGLES end
             juice_card_until(card, eval, true)
         end
-        if context.pre_discard and G.GAME.current_round.discards_used <= 0 and not context.hook then
+        if context.pre_discard and #context.full_hand == card.ability.extra.discarded_hand_size_threshold 
+           and G.GAME.current_round.discards_used <= 0 and not context.hook then
                 local text,disp_text = G.FUNCS.get_poker_hand_info(G.hand.highlighted)
                 local voice_line = "Unrivaled_" .. pseudorandom_element(torch_lines, pseudoseed('supernova'))
                 card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Incinerated!"})
@@ -984,8 +985,6 @@ SMODS.Joker {
         end
     end
 }
-
---Fix bug where he can activate on Five of a Kind
 
 --Mister Fantastic
 SMODS.Joker {
@@ -1374,33 +1373,39 @@ SMODS.Joker {
     
     calculate = function(self, card, context)
         if context.before and not context.individual and not context.blueprint then
-            card.ability.extra.clubs = true
+            card.ability.extra.only_clubs = true
             --print("context: ")
             --print(context)
             print('context before, MK')
             for i = 1, #context.scoring_hand do
                 if not context.scoring_hand[i]:is_suit("Clubs") then
-                    --print(card.ability.extra.only_clubs)
+                    print("not clubs")
                     card.ability.extra.only_clubs = false
                 end
             end
-            if context.before and next(context.poker_hands['Three of a Kind']) and 
-            #context.full_hand == card.ability.extra.played_hand_size_threshold and card.ability.extra.only_clubs then
-                print("returning the moo")
-                --play_sound("Unrivaled_tremblebeforebast", 1, 2.5)
-                return{
-                    message_card = card,
-                    message =  "The Moon haunts you!",
-                    pitch = 1,
-                    volume = 2.5,
-                    sound = "Unrivaled_themoo"
-                }
-            end
         end
-        if context.poker_hands['Three of a Kind'] and 
+        if context.before and next(context.poker_hands['Three of a Kind']) and 
+        #context.full_hand == card.ability.extra.played_hand_size_threshold and card.ability.extra.only_clubs then
+            print("returning the moo")
+            --play_sound("Unrivaled_tremblebeforebast", 1, 2.5)
+            return{
+                message_card = card,
+                message =  "The Moon haunts you!",
+                pitch = 1,
+                volume = 2.5,
+                sound = "Unrivaled_themoo"
+            }
+        end
+        if context.cardarea == G.play then
+            print(context.scoring_name)
+            print("played hand size: ".. #context.full_hand)
+            print(card.ability.extra.only_clubs)
+        end
+        if context.scoring_name == "Three of a Kind" and 
            #context.full_hand == card.ability.extra.played_hand_size_threshold and 
            context.cardarea == G.play and context.repetition and not context.repetition_only 
            and card.ability.extra.only_clubs then
+
             return {
                 message = localize('k_again_ex'),
                 repetitions = card.ability.extra.repetitions,
