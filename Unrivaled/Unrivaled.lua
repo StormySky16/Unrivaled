@@ -985,6 +985,8 @@ SMODS.Joker {
     end
 }
 
+--Fix bug where he can activate on Five of a Kind
+
 --Mister Fantastic
 SMODS.Joker {
     key = 'mister_fantastic',
@@ -1395,7 +1397,7 @@ SMODS.Joker {
                 }
             end
         end
-        if context.before and next(context.poker_hands['Three of a Kind']) and 
+        if context.poker_hands['Three of a Kind'] and 
            #context.full_hand == card.ability.extra.played_hand_size_threshold and 
            context.cardarea == G.play and context.repetition and not context.repetition_only 
            and card.ability.extra.only_clubs then
