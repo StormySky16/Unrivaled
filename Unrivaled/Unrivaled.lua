@@ -3,7 +3,7 @@
 --- MOD_ID: Unrivaled
 --- MOD_AUTHOR: [StormySky16]
 --- MOD_DESCRIPTION: Marvel Rivals Jokers Mod
---- MOD_VERSION: 0.2.0
+--- MOD_VERSION: 0.3.0-alpha
 --- PREFIX: Unrivaled
 
 --Creates an atlas for cards to use
