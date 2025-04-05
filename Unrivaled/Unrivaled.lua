@@ -1396,11 +1396,11 @@ SMODS.Joker {
                 sound = "Unrivaled_themoo"
             }
         end
-        if context.cardarea == G.play then
-            print(context.scoring_name)
-            print("played hand size: ".. #context.full_hand)
-            print(card.ability.extra.only_clubs)
-        end
+        -- if context.cardarea == G.play then
+        --     print(context.scoring_name)
+        --     print("played hand size: ".. #context.full_hand)
+        --     print(card.ability.extra.only_clubs)
+        -- end
         if context.scoring_name == "Three of a Kind" and 
            #context.full_hand == card.ability.extra.played_hand_size_threshold and 
            context.cardarea == G.play and context.repetition and not context.repetition_only 
