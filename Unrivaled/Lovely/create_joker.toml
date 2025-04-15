@@ -37,7 +37,6 @@ end'''
 match_indent = true
 times = 1
 
-
 # CardArea:emplace()
 [[patches]]
 [patches.pattern]
@@ -149,3 +148,12 @@ G.shop_jokers:emplace(new_shop_card, nil, nil, true, false)'''
 match_indent = true
 times = 1
 
+# Card:open()
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''G.pack_cards:emplace(v)'''
+position = "at"
+payload = '''G.pack_cards:emplace(v, nil, nil, true, false)'''
+match_indent = true
+times = 1

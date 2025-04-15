@@ -778,33 +778,23 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
-        if (context.buying_card and context.card.ability.set == 'Joker') or (context.joker_created and context.card.area == G.jokers) and not context.blueprint then
-            -- print("card added")
-            -- print((context.card_added and context.card ~= card))
-            -- print((context.buying_card and context.card == card))
+        if context.card_added and not context.blueprint then
             if context.card.config.center.rarity == "Unrivaled_heroic" then
                 -- print("card is joker")
                 -- print(context.card.config.center.key)
                 if context.card.config.center.key ~= "j_Unrivaled_fantastic_four" then
-                    -- print("eval call")
-                    fantastic_eval(context.card, context)
+                    --print("eval call")
+                    G.E_MANAGER:add_event(Event({
+                        trigger = "after", 
+                        --delay = 0.1, 
+                        func = function()
+                            fantastic_eval(context.card, context)
+                            return true
+                        end
+                    }))
                 end
             end
         end
-        -- if context.buying_card and not context.blueprint then
-        --     --print("card bought")
-        --     if next(SMODS.find_card("j_Unrivaled_fantastic_four")) then
-        --         G.E_MANAGER:add_event(Event({
-        --             func = function()
-        --                 G.hand_text_area.blind_chips:juice_up()
-        --                 G.hand_text_area.game_chips:juice_up()
-        --                 play_sound('tarot1')
-        --                 card:start_dissolve()
-        --                 return true
-        --             end
-        --         })) 
-        --     end
-        -- end
         if context.before and next(context.poker_hands['Four of a Kind']) and 
         #context.full_hand == card.ability.extra.played_hand_size_threshold and not context.blueprint then
             local voice_line = "Unrivaled_" .. pseudorandom_element(thing_lines, pseudoseed('itsclobberintime'))
@@ -854,33 +844,23 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
-        if (context.buying_card and context.card.ability.set == 'Joker') or (context.joker_created and context.card.area == G.jokers) and not context.blueprint then
-            -- print("card added")
-            -- print((context.card_added and context.card ~= card))
-            -- print((context.buying_card and context.card == card))
+        if context.card_added and not context.blueprint then
             if context.card.config.center.rarity == "Unrivaled_heroic" then
                 -- print("card is joker")
                 -- print(context.card.config.center.key)
                 if context.card.config.center.key ~= "j_Unrivaled_fantastic_four" then
-                    -- print("eval call")
-                    fantastic_eval(context.card, context)
+                    --print("eval call")
+                    G.E_MANAGER:add_event(Event({
+                        trigger = "after", 
+                        --delay = 0.1, 
+                        func = function()
+                            fantastic_eval(context.card, context)
+                            return true
+                        end
+                    }))
                 end
             end
         end
-        -- if context.buying_card and not context.blueprint then
-        --     --print("card bought")
-        --     if next(SMODS.find_card("j_Unrivaled_fantastic_four")) then
-        --         G.E_MANAGER:add_event(Event({
-        --             func = function()
-        --                 G.hand_text_area.blind_chips:juice_up()
-        --                 G.hand_text_area.game_chips:juice_up()
-        --                 play_sound('tarot1')
-        --                 card:start_dissolve()
-        --                 return true
-        --             end
-        --         })) 
-        --     end
-        -- end
         if not context.blueprint and context.first_hand_drawn then
             local eval = function(card) return G.GAME.current_round.discards_used == 0 and not G.RESET_JIGGLES end
             juice_card_until(card, eval, true)
@@ -933,34 +913,23 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
-        if (context.buying_card and context.card.ability.set == 'Joker') or (context.joker_created and context.card.area == G.jokers) and not context.blueprint then
-            -- print("card added")
-            -- print((context.card_added and context.card ~= card))
-            -- print((context.buying_card and context.card == card))
+        if context.card_added and not context.blueprint then
             if context.card.config.center.rarity == "Unrivaled_heroic" then
                 -- print("card is joker")
                 -- print(context.card.config.center.key)
                 if context.card.config.center.key ~= "j_Unrivaled_fantastic_four" then
-                    -- print("eval call")
-                    fantastic_eval(context.card, context)
+                    --print("eval call")
+                    G.E_MANAGER:add_event(Event({
+                        trigger = "after", 
+                        --delay = 0.1, 
+                        func = function()
+                            fantastic_eval(context.card, context)
+                            return true
+                        end
+                    }))
                 end
             end
         end
-        -- if context.buying_card and not context.blueprint then
-        --     --print("card bought")
-        --     if next(SMODS.find_card("j_Unrivaled_fantastic_four")) then
-        --         --print("found f4")
-        --         G.E_MANAGER:add_event(Event({
-        --             func = function()
-        --                 G.hand_text_area.blind_chips:juice_up()
-        --                 G.hand_text_area.game_chips:juice_up()
-        --                 play_sound('tarot1')
-        --                 card:start_dissolve()
-        --                 return true
-        --             end
-        --         })) 
-        --     end
-        -- end
         if context.before and #context.full_hand == card.ability.extra.played_hand_size_threshold and not context.blueprint then
             --local voice_line = "Unrivaled_" .. pseudorandom_element(invisible_lines, pseudoseed('disappear'))
             local cards = {}
@@ -1017,22 +986,23 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
-        if (context.buying_card and context.card.ability.set == 'Joker') or (context.joker_created and context.card.area == G.jokers) and not context.blueprint then
-            -- print("card added")
-            -- print((context.card_added and context.card ~= card))
-            -- print((context.buying_card and context.card == card))
+        if context.card_added and not context.blueprint then
             if context.card.config.center.rarity == "Unrivaled_heroic" then
                 -- print("card is joker")
                 -- print(context.card.config.center.key)
                 if context.card.config.center.key ~= "j_Unrivaled_fantastic_four" then
-                    -- print("eval call")
-                    fantastic_eval(context.card, context)
+                    --print("eval call")
+                    G.E_MANAGER:add_event(Event({
+                        trigger = "after", 
+                        --delay = 0.1, 
+                        func = function()
+                            fantastic_eval(context.card, context)
+                            return true
+                        end
+                    }))
                 end
             end
         end
-        -- if context.card_added then
-        --     print('card added context')
-        -- end
         if context.before and not context.individual and not context.blueprint 
         and #context.full_hand == card.ability.extra.played_hand_size_threshold then
             --print("context: ")
