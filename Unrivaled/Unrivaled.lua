@@ -180,6 +180,28 @@ SMODS.Sound ({
     key = "themoo", path = "themoo.ogg"
 })
 
+--Cloak Lines
+
+cloak_fail_lines = {"nah", "nope"}
+
+cloak_success_lines = {"welcome", "obscure"}
+
+SMODS.Sound ({
+    key = "nah", path = "cloaknah.ogg"
+})
+
+SMODS.Sound ({
+    key = "nope", path = "cloaknope.ogg"
+})
+
+SMODS.Sound ({
+    key = "welcome", path = "cloakwelcome.ogg"
+})
+
+SMODS.Sound ({
+    key = "obscure", path = "cloakobscure.ogg"
+})
+
 
 -- you can have shared helper functions
 -- function shakecard(self) --visually shake a card
@@ -1338,7 +1360,7 @@ SMODS.Joker {
     --unlocked = true,
     
     loc_vars =  function(self, info_queue, card)
-        return { vars = {card.ability.extra.played_hand_size_threshold, card.ability.extra.repetitions, card.ability.extra.only_spades} }
+        return { vars = {card.ability.extra.played_hand_size_threshold, card.ability.extra.repetitions, card.ability.extra.only_clubs} }
     end,
     
     calculate = function(self, card, context)
@@ -1385,6 +1407,88 @@ SMODS.Joker {
     end
 }
 
+--Functional, but currently probably doesn't work with Oops All 6s and Timing for Turning Negative is Off
+--Cloak
+SMODS.Joker {
+    key = 'cloak',
+    loc_txt = {
+        name = "Cloak",
+        text = {
+            "{C:green} 1 in #1#{} chance to add",
+            "{C:dark_edition}Negative{} to a random joker upon",
+            "playing a hand that",
+            "only contains {C:clubs}Clubs{}",
+            "{C:red}(not including self){}"
+        }
+    },
+    config = { extra = { neg_prob_denominator = 18 , only_clubs = true} },
+    rarity = "Unrivaled_heroic",
+    atlas = 'Unrivaled',
+    pos = { x = 0, y = 2 },
+    cost = 8,
+    blueprint_compat = true, 
+    eternal_compat = true,
+    --unlocked = true,
+    
+    loc_vars =  function(self, info_queue, card)
+        return { vars = {card.ability.extra.neg_prob_denominator, card.ability.extra.only_clubs} }
+    end,
+    
+    calculate = function(self, card, context)
+        if context.before and not context.individual and not context.blueprint then
+            card.ability.extra.only_clubs = true
+            --print("context: ")
+            --print(context)
+            print('context before, Cloak')
+            for i = 1, #context.scoring_hand do
+                if not context.scoring_hand[i]:is_suit("Clubs") then
+                    print("not clubs")
+                    card.ability.extra.only_clubs = false
+                end
+            end
+        end
+        if context.after and card.ability.extra.only_clubs then
+            local eligible_strength_jokers = {}
+            print("check jokers")
+            --play_sound("Unrivaled_tremblebeforebast", 1, 2.5)
+            for k, v in pairs(G.jokers.cards) do
+                if v.ability.set == 'Joker' and (not v.edition) and v ~= card then
+                    table.insert(eligible_strength_jokers, v)
+                end
+            end
+            if next(eligible_strength_jokers) then 
+                print("check prob")
+                local eligible_card = pseudorandom_element(eligible_strength_jokers, pseudoseed("darkforce"))
+                if pseudorandom("darkforce") <= (1 / card.ability.extra.neg_prob_denominator) then 
+                    local voice_line = "Unrivaled_"..pseudorandom_element(cloak_success_lines, pseudoseed("darkfoce"))
+                    return{
+                        message_card = card,
+                        message =  "Hidden!",
+                        pitch = 1,
+                        volume = 2.5,
+                        sound = voice_line,
+                        eligible_card:set_edition({negative = true}, true),
+                        card:juice_up(0.3, 0.5)
+                    }
+                else 
+                    local voice_line = "Unrivaled_"..pseudorandom_element(cloak_fail_lines, pseudoseed("darkfoce"))
+                    return{
+                        message_card = card,
+                        message =  "Nope!",
+                        pitch = 1,
+                        volume = 2.5,
+                        sound = voice_line
+                    }
+                end
+            end
+        end
+        -- if context.cardarea == G.play then
+        --     print(context.scoring_name)
+        --     print("played hand size: ".. #context.full_hand)
+        --     print(card.ability.extra.only_clubs)
+        -- end
+    end
+}
 
 -- function return_JokerValues() -- not used, just here to demonstrate how you could return values from a joker
 --     if context.joker_main and context.cardarea == G.jokers then
