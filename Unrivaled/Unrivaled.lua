@@ -325,36 +325,41 @@ fantastic_eval = function(card, context)
     -- print(next(SMODS.find_card("j_Unrivaled_mister_fantastic"))~= nil)
     -- print(next(SMODS.find_card("j_Unrivaled_human_torch"))~= nil)
     
-    for i=1, #G.jokers.cards do 
-        if G.jokers.cards[i].config.center.key == "j_Unrivaled_invisible_woman" then
-            --print("invis")
-        end
-        if G.jokers.cards[i].config.center.key == "j_Unrivaled_the_thing" then
-            --print("thing")
-        end
-        if G.jokers.cards[i].config.center.key == "j_Unrivaled_mister_fantastic" then
-            --print("fantastic")
-        end
-        if G.jokers.cards[i].config.center.key == "j_Unrivaled_human_torch" then
-            --print("torch")
-        end
-    end
+    
     -- print("fantastic eval")
     local invisible_woman = false
     local the_thing = false
     local human_torch = false
     local mister_fantastic = false
-    if next(SMODS.find_card("j_Unrivaled_invisible_woman"))  then
-        invisible_woman = true
-    end
-    if next(SMODS.find_card("j_Unrivaled_human_torch"))  then
-        human_torch = true
-    end
-    if next(SMODS.find_card("j_Unrivaled_mister_fantastic"))  then
-        mister_fantastic = true
-    end
-    if next(SMODS.find_card("j_Unrivaled_the_thing"))  then
-        the_thing = true
+    -- if next(SMODS.find_card("j_Unrivaled_invisible_woman"))  then
+    --     invisible_woman = true
+    -- end
+    -- if next(SMODS.find_card("j_Unrivaled_human_torch"))  then
+    --     human_torch = true
+    -- end
+    -- if next(SMODS.find_card("j_Unrivaled_mister_fantastic"))  then
+    --     mister_fantastic = true
+    -- end
+    -- if next(SMODS.find_card("j_Unrivaled_the_thing"))  then
+    --     the_thing = true
+    -- end
+    for i=1, #G.jokers.cards do 
+        if G.jokers.cards[i].config.center.key == "j_Unrivaled_invisible_woman" then
+            invisible_woman = true
+            --print("invis")
+        end
+        if G.jokers.cards[i].config.center.key == "j_Unrivaled_the_thing" then
+            the_thing = true
+            --print("thing")
+        end
+        if G.jokers.cards[i].config.center.key == "j_Unrivaled_mister_fantastic" then
+            mister_fantastic = true
+            --print("fantastic")
+        end
+        if G.jokers.cards[i].config.center.key == "j_Unrivaled_human_torch" then
+            human_torch = true
+            --print("torch")
+        end
     end
     -- print(invisible_woman)
     -- print(the_thing)
@@ -1259,7 +1264,6 @@ SMODS.Joker {
     end
 }
 
-
 --Adam Warlock
 SMODS.Joker { 
     key = 'adam_warlock',
@@ -1414,7 +1418,7 @@ SMODS.Joker {
     loc_txt = {
         name = "Cloak",
         text = {
-            "{C:green} 1 in #1#{} chance to add",
+            "{C:green} #3# in #1#{} chance to add",
             "{C:dark_edition}Negative{} to a random joker upon",
             "playing a hand that",
             "only contains {C:clubs}Clubs{}",
@@ -1431,7 +1435,7 @@ SMODS.Joker {
     --unlocked = true,
     
     loc_vars =  function(self, info_queue, card)
-        return { vars = {card.ability.extra.neg_prob_denominator, card.ability.extra.only_clubs} }
+        return { vars = {card.ability.extra.neg_prob_denominator, card.ability.extra.only_clubs, G.GAME.probabilities.normal} }
     end,
     
     calculate = function(self, card, context)
@@ -1461,15 +1465,16 @@ SMODS.Joker {
                 local eligible_card = pseudorandom_element(eligible_strength_jokers, pseudoseed("darkforce"))
                 if pseudorandom("darkforce") <= (1 / card.ability.extra.neg_prob_denominator) then 
                     local voice_line = "Unrivaled_"..pseudorandom_element(cloak_success_lines, pseudoseed("darkfoce"))
-                    return{
-                        message_card = card,
-                        message =  "Hidden!",
-                        pitch = 1,
-                        volume = 2.5,
-                        sound = voice_line,
-                        eligible_card:set_edition({negative = true}, true),
-                        card:juice_up(0.3, 0.5)
-                    }
+                    G.E_MANAGER:add_event(Event({
+                        trigger = "after", 
+                        --delay = 0.1, 
+                        func = function()
+                            card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Hidden!"})
+                            card:juice_up(0.3, 0.5)
+                            play_sound(voice_line, 1, 2.5)
+                            eligible_card:set_edition({negative = true}, true)
+                            return true end 
+                    }))
                 else 
                     local voice_line = "Unrivaled_"..pseudorandom_element(cloak_fail_lines, pseudoseed("darkfoce"))
                     return{
