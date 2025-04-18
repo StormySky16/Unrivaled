@@ -331,6 +331,8 @@ fantastic_eval = function(card, context)
     local the_thing = false
     local human_torch = false
     local mister_fantastic = false
+
+    -- Probably more efficient, but doesn't detect debuffed Jokers. If that's an ok consideration for future balance, use this instead for efficiency & ignoring debuffed Jokers.
     -- if next(SMODS.find_card("j_Unrivaled_invisible_woman"))  then
     --     invisible_woman = true
     -- end
