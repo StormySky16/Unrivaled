@@ -202,6 +202,28 @@ SMODS.Sound ({
     key = "obscure", path = "cloakobscure.ogg"
 })
 
+--Dagger Lines
+
+dagger_lines = {"mytimetoshine", "embracethelight"}
+
+SMODS.Sound ({
+    key = "mytimetoshine", path = "mytimetoshine.ogg"
+})
+
+SMODS.Sound ({
+    key = "embracethelight", path = "embracethelight.ogg"
+})
+
+--Cloak & Dagger Lines
+c_d_ult_lines = {"usagainsttheworlddagger", "usagainsttheworldcloak"}
+
+SMODS.Sound ({
+    key = "usagainsttheworlddagger", path = "usagainsttheworlddagger.ogg"
+})
+
+SMODS.Sound ({
+    key = "usagainsttheworldcloak", path = "usagainsttheworldcloak.ogg"
+})
 
 -- you can have shared helper functions
 -- function shakecard(self) --visually shake a card
@@ -405,6 +427,66 @@ fantastic_eval = function(card, context)
     end
 end
 
+c_d_eval = function(card, context) 
+    -- print(next(SMODS.find_card("j_Unrivaled_the_thing"))~= nil)
+    -- print(next(SMODS.find_card("j_Unrivaled_invisible_woman"))~= nil)
+    -- print(next(SMODS.find_card("j_Unrivaled_mister_fantastic"))~= nil)
+    -- print(next(SMODS.find_card("j_Unrivaled_human_torch"))~= nil)
+    
+    
+    -- print("fantastic eval")
+    local cloak = false
+    local dagger = false
+
+    -- Probably more efficient, but doesn't detect debuffed Jokers. If that's an ok consideration for future balance, use this instead for efficiency & ignoring debuffed Jokers.
+    -- if next(SMODS.find_card("j_Unrivaled_invisible_woman"))  then
+    --     invisible_woman = true
+    -- end
+    -- if next(SMODS.find_card("j_Unrivaled_human_torch"))  then
+    --     human_torch = true
+    -- end
+    -- if next(SMODS.find_card("j_Unrivaled_mister_fantastic"))  then
+    --     mister_fantastic = true
+    -- end
+    -- if next(SMODS.find_card("j_Unrivaled_the_thing"))  then
+    --     the_thing = true
+    -- end
+    for i=1, #G.jokers.cards do 
+        if G.jokers.cards[i].config.center.key == "j_Unrivaled_cloak" then
+            cloak = true
+            --print("invis")
+        end
+        if G.jokers.cards[i].config.center.key == "j_Unrivaled_dagger" then
+            dagger = true
+            --print("thing")
+        end
+    end
+    -- print(invisible_woman)
+    -- print(the_thing)
+    -- print(human_torch)
+    -- print(mister_fantastic)
+    if cloak and dagger then
+        -- print("f4 present")
+        local c = false
+        local d = false
+        for i=1, #G.jokers.cards do 
+            if G.jokers.cards[i].config.center.key == "j_Unrivaled_cloak" and not c then
+                play_sound('tarot1')
+                G.jokers.cards[i]:start_dissolve()
+                c = true
+            end
+            if G.jokers.cards[i].config.center.key == "j_Unrivaled_dagger" and not d then
+                play_sound('tarot1')
+                G.jokers.cards[i]:start_dissolve()
+                d = true
+            end
+        end
+        if c and d and not card.ability.extra.flag then
+            card.ability.extra.flag = true
+            SMODS.add_card({set = 'Joker', area = G.jokers, key = "j_Unrivaled_cloak_and_dagger"})
+        end
+    end
+end
 --Winter Soldier
 SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
     key = 'winter_soldier',
@@ -1390,7 +1472,7 @@ SMODS.Joker {
                 message_card = card,
                 message =  "The Moon haunts you!",
                 pitch = 1,
-                volume = 2.5,
+                volume = 2,
                 sound = "Unrivaled_themoo"
             }
         end
@@ -1413,7 +1495,7 @@ SMODS.Joker {
     end
 }
 
---Functional, but currently probably doesn't work with Oops All 6s and Timing for Turning Negative is Off
+--TODO: Update Card Art
 --Cloak
 SMODS.Joker {
     key = 'cloak',
@@ -1423,37 +1505,37 @@ SMODS.Joker {
             "{C:green} #3# in #1#{} chance to add",
             "{C:dark_edition}Negative{} to a random joker upon",
             "playing a hand that",
-            "only contains {C:clubs}Clubs{}",
+            "only contains {C:spades}Spades{}",
             "{C:red}(not including self){}"
         }
     },
-    config = { extra = { neg_prob_denominator = 18 , only_clubs = true} },
+    config = { extra = { neg_prob_denominator = 18 , only_spades = true, flag = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 0, y = 2 },
     cost = 8,
-    blueprint_compat = true, 
+    blueprint_compat = false, 
     eternal_compat = true,
     --unlocked = true,
     
     loc_vars =  function(self, info_queue, card)
-        return { vars = {card.ability.extra.neg_prob_denominator, card.ability.extra.only_clubs, G.GAME.probabilities.normal} }
+        return { vars = {card.ability.extra.neg_prob_denominator, card.ability.extra.only_spades, G.GAME.probabilities.normal, card.ability.extra.flag} }
     end,
     
     calculate = function(self, card, context)
         if context.before and not context.individual and not context.blueprint then
-            card.ability.extra.only_clubs = true
+            card.ability.extra.only_spades = true
             --print("context: ")
             --print(context)
             print('context before, Cloak')
             for i = 1, #context.scoring_hand do
-                if not context.scoring_hand[i]:is_suit("Clubs") then
-                    print("not clubs")
-                    card.ability.extra.only_clubs = false
+                if not context.scoring_hand[i]:is_suit("Spades") then
+                    print("not spades")
+                    card.ability.extra.only_spades = false
                 end
             end
         end
-        if context.after and card.ability.extra.only_clubs then
+        if context.after and card.ability.extra.only_spades then
             local eligible_strength_jokers = {}
             print("check jokers")
             --play_sound("Unrivaled_tremblebeforebast", 1, 2.5)
@@ -1465,7 +1547,7 @@ SMODS.Joker {
             if next(eligible_strength_jokers) then 
                 print("check prob")
                 local eligible_card = pseudorandom_element(eligible_strength_jokers, pseudoseed("darkforce"))
-                if pseudorandom("darkforce") <= (1 / card.ability.extra.neg_prob_denominator) then 
+                if pseudorandom("darkforce") <= (G.GAME.probabilities.normal / card.ability.extra.neg_prob_denominator) then 
                     local voice_line = "Unrivaled_"..pseudorandom_element(cloak_success_lines, pseudoseed("darkfoce"))
                     G.E_MANAGER:add_event(Event({
                         trigger = "after", 
@@ -1473,7 +1555,7 @@ SMODS.Joker {
                         func = function()
                             card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Hidden!"})
                             card:juice_up(0.3, 0.5)
-                            play_sound(voice_line, 1, 2.5)
+                            play_sound(voice_line, 1, 2)
                             eligible_card:set_edition({negative = true}, true)
                             return true end 
                     }))
@@ -1483,10 +1565,74 @@ SMODS.Joker {
                         message_card = card,
                         message =  "Nope!",
                         pitch = 1,
-                        volume = 2.5,
+                        volume = 2,
                         sound = voice_line
                     }
                 end
+            end
+        end
+        -- if context.cardarea == G.play then
+        --     print(context.scoring_name)
+        --     print("played hand size: ".. #context.full_hand)
+        --     print(card.ability.extra.only_clubs)
+        -- end
+    end
+}
+
+
+SMODS.Joker {
+    key = 'dagger',
+    loc_txt = {
+        name = "Dagger",
+        text = {
+            "Scored {C:clubs}Clubs{} cards have",
+            "a {C:green}#2# in #1#{} chance to", 
+            "become {C:dark_edition}Polychrome{}"
+        }
+    },
+    config = { extra = { poly_prob_denominator = 4 , flag = false} },
+    rarity = "Unrivaled_heroic",
+    atlas = 'Unrivaled',
+    pos = { x = 1, y = 2 },
+    cost = 8,
+    blueprint_compat = false, 
+    eternal_compat = true,
+    --unlocked = true,
+    
+    loc_vars =  function(self, info_queue, card)
+        return { vars = {card.ability.extra.poly_prob_denominator, G.GAME.probabilities.normal, card.ability.extra.flag} }
+    end,
+    
+    calculate = function(self, card, context)
+        if context.before and not context.individual and not context.blueprint then
+            local proc = false
+            --print("context: ")
+            --print(context)
+            print('context before, Dagger')
+            local cards = {}
+            for k, v in ipairs(context.scoring_hand) do
+                if v:is_suit("Clubs") and pseudorandom("lightforce") <= (G.GAME.probabilities.normal / card.ability.extra.poly_prob_denominator) then
+                    proc = true
+                    cards[#cards+1] = v
+                    v:set_edition('e_polychrome', true, true)
+                    G.E_MANAGER:add_event(Event({
+                        func = function()
+                            v:juice_up()
+                            return true
+                        end
+                    })) 
+                end
+            end
+            if proc then
+                local voice_line = "Unrivaled_" .. pseudorandom_element(dagger_lines, pseudoseed('lightforce'))
+                return {
+                    message = "Shine!",
+                    colour = G.C.CHIPS,
+                    card = card,
+                    pitch = 1,
+                    volume = 2,
+                    sound = voice_line
+                }
             end
         end
         -- if context.cardarea == G.play then
