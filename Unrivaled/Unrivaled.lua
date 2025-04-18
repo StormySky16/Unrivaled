@@ -1495,7 +1495,7 @@ SMODS.Joker {
     end
 }
 
---TODO: Update Card Art
+--TODO: Update Card Art & Implement C&D Joker
 --Cloak
 SMODS.Joker {
     key = 'cloak',
@@ -1579,7 +1579,7 @@ SMODS.Joker {
     end
 }
 
-
+--TODO: Update Card Art & Implement C&D Joker
 SMODS.Joker {
     key = 'dagger',
     loc_txt = {
