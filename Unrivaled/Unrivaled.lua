@@ -1495,7 +1495,6 @@ SMODS.Joker {
     end
 }
 
---TODO: Update Card Art & Implement C&D Joker
 --Cloak
 SMODS.Joker {
     key = 'cloak',
@@ -1503,8 +1502,8 @@ SMODS.Joker {
         name = "Cloak",
         text = {
             "{C:green} #3# in #1#{} chance to add",
-            "{C:dark_edition}Negative{} to a random joker upon",
-            "playing a hand that",
+            "{C:dark_edition}Negative{} to a random joker",
+            "upon playing a hand that",
             "only contains {C:spades}Spades{}",
             "{C:red}(not including self){}"
         }
@@ -1579,14 +1578,14 @@ SMODS.Joker {
     end
 }
 
---TODO: Update Card Art & Implement C&D Joker
+--TODO: Update Card Art 
 SMODS.Joker {
     key = 'dagger',
     loc_txt = {
         name = "Dagger",
         text = {
-            "Scored {C:clubs}Clubs{} cards have",
-            "a {C:green}#2# in #1#{} chance to", 
+            "{C:green}#2# in #1#{} chance for",
+            "scored cards with {C:clubs}Club{} suit to", 
             "become {C:dark_edition}Polychrome{}"
         }
     },
@@ -1635,11 +1634,121 @@ SMODS.Joker {
                 }
             end
         end
-        -- if context.cardarea == G.play then
-        --     print(context.scoring_name)
-        --     print("played hand size: ".. #context.full_hand)
-        --     print(card.ability.extra.only_clubs)
-        -- end
+    end
+}
+
+--TODO: Update Card Art
+SMODS.Joker {
+    key = 'cloak_and_dagger',
+    loc_txt = {
+        name = "Cloak & Dagger",
+        text = {
+            "If played hand contains a",
+            "{C:attention}Full House{} and only contains {C:clubs}Clubs{}",
+            "or {C:spades}Spades{}, {C:green}#3# in #1#{} chance to",
+            "add {C:dark_edition}Negative{} to a random joker and",
+            "scored cards with {C:clubs}Club{} suit have",
+            "a {C:green}#3# in #2#{} chance to become {C:dark_edition}Polychrome{}"
+        }
+    },
+    config = { extra = { neg_prob_denominator = 9, poly_prob_denominator = 2 , flag = false, only_s_and_c = true, contains_hand = false} },
+    rarity = "Unrivaled_heroic",
+    atlas = 'Unrivaled',
+    pos = { x = 3, y = 2 },
+    cost = 16,
+    blueprint_compat = false, 
+    eternal_compat = true,
+    --unlocked = true,
+    
+    loc_vars =  function(self, info_queue, card)
+        return { vars = {card.ability.extra.neg_prob_denominator, card.ability.extra.poly_prob_denominator, G.GAME.probabilities.normal, card.ability.extra.flag, card.ability.extra.only_s_and_c, card.ability.extra.contains_hand} }
+    end,
+    
+    calculate = function(self, card, context)
+        if context.before and not context.individual and not context.blueprint then
+            card.ability.extra.only_s_and_c = true
+            card.ability.extra.contains_hand = false
+            --print("context: ")
+            --print(context)
+            print('context before, Cloak')
+            for i = 1, #context.scoring_hand do
+                if not context.scoring_hand[i]:is_suit("Spades") or not context.scoring_hand[i]:is_suit("Clubs") then
+                    print("not spades/clubs")
+                    card.ability.extra.only_s_and_c = false
+                end
+            end
+            if next(context.poker_hands['Full House']) then
+                card.ability.extra.contains_hand = true
+                local proc = false
+                --print("context: ")
+                --print(context)
+                print('context before, C&D')
+                local cards = {}
+                for k, v in ipairs(context.scoring_hand) do
+                    if (v:is_suit("Clubs") or v:is_suit("Spades")) and pseudorandom("lightforce") <= (G.GAME.probabilities.normal / card.ability.extra.poly_prob_denominator) then
+                        proc = true
+                        cards[#cards+1] = v
+                        v:set_edition('e_polychrome', true, true)
+                        G.E_MANAGER:add_event(Event({
+                            func = function()
+                                v:juice_up()
+                                return true
+                            end
+                        })) 
+                    end
+                end
+                if proc then
+                    local voice_line = "Unrivaled_" .. pseudorandom_element(dagger_lines, pseudoseed('lightforce'))
+                    return {
+                        message = "Shine!",
+                        colour = G.C.CHIPS,
+                        card = card,
+                        pitch = 1,
+                        volume = 2,
+                        sound = voice_line
+                    }
+                end
+            end    
+        end
+        if context.after and card.ability.extra.only_s_and_c and card.ability.extra.contains_hand then
+            local eligible_strength_jokers = {}
+            print("check jokers")
+            --play_sound("Unrivaled_tremblebeforebast", 1, 2.5)
+            for k, v in pairs(G.jokers.cards) do
+                if v.ability.set == 'Joker' and (not v.edition) and v ~= card then
+                    table.insert(eligible_strength_jokers, v)
+                end
+            end
+            if next(eligible_strength_jokers) then 
+                print("check prob")
+                local eligible_card = pseudorandom_element(eligible_strength_jokers, pseudoseed("darkforce"))
+                if pseudorandom("darkforce") <= (G.GAME.probabilities.normal / card.ability.extra.neg_prob_denominator) then 
+                    local voice_line = "Unrivaled_"..pseudorandom_element(cloak_success_lines, pseudoseed("darkfoce"))
+                    G.E_MANAGER:add_event(Event({
+                        trigger = "after", 
+                        --delay = 0.1, 
+                        func = function()
+                            card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Hidden!"})
+                            card:juice_up(0.3, 0.5)
+                            play_sound(voice_line, 1, 2)
+                            eligible_card:set_edition({negative = true}, true)
+                            return true end 
+                    }))
+                else 
+                    local voice_line = "Unrivaled_"..pseudorandom_element(cloak_fail_lines, pseudoseed("darkfoce"))
+                    return{
+                        message_card = card,
+                        message =  "Nope!",
+                        pitch = 1,
+                        volume = 2,
+                        sound = voice_line
+                    }
+                end
+            end
+        end
+    end,
+    in_pool = function(self, card)
+        return false
     end
 }
 
