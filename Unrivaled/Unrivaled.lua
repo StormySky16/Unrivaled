@@ -17,6 +17,55 @@ SMODS.Atlas {
 	-- Height of each sprite in 1x size
 	py = 95
 }
+
+SMODS.Atlas {
+	key = "tag_heroic",
+	path = "heroic_tag.png",
+	px = 34,
+	py = 34,
+}
+
+SMODS.Tag {
+    key = "heroic_tag",
+    loc_txt = {
+        name = 'Heroic Tag',
+        text = {"Shop has a free {C:yellow}Heroic Joker{}"}
+    },
+    atlas = "tag_heroic",
+    pos = { x = 0, y = 0 },
+    config = { type = "store_joker_create" },
+    apply = function(self, tag, context)
+        if context.type == "store_joker_create" then
+            local rares_in_posession = { 0 }
+            for k, v in ipairs(G.jokers.cards) do
+                if v.config.center.rarity == "Unrivaled_heroic" and not rares_in_posession[v.config.center.key] then
+                    rares_in_posession[1] = rares_in_posession[1] + 1
+                    rares_in_posession[v.config.center.key] = true
+                end
+            end
+            local card
+            if #G.P_JOKER_RARITY_POOLS.Unrivaled_heroic > rares_in_posession[1] then
+                card = create_card("Joker", context.area, nil, "Unrivaled_heroic", nil, nil, nil, "j_Unrivaled")
+                create_shop_card_ui(card, "Joker", context.area)
+                card.states.visible = false
+                tag:yep("+", G.C.RARITY.Unrivaled_heroic, function()
+                    card:start_materialize()
+                    --print(card.cost)
+                    card.cost = 0
+                    --print(card.cost)
+                    --card:set_cost()
+                    --print(card.cost)
+                    return true
+                end)
+            else
+                tag:nope()
+            end
+            tag.triggered = true
+            return card
+        end
+    end,
+}
+
 SMODS.Rarity {
     key = 'heroic',
     loc_txt = { name = 'Heroic' },
@@ -487,6 +536,7 @@ c_d_eval = function(card, context)
         end
     end
 end
+
 --Winter Soldier
 SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
     key = 'winter_soldier',
@@ -1495,6 +1545,7 @@ SMODS.Joker {
     end
 }
 
+--TODO: Playtesting
 --Cloak
 SMODS.Joker {
     key = 'cloak',
@@ -1522,6 +1573,23 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
+        if context.card_added and not context.blueprint then
+            if context.card.config.center.rarity == "Unrivaled_heroic" then
+                -- print("card is joker")
+                -- print(context.card.config.center.key)
+                if context.card.config.center.key ~= "j_Unrivaled_cloak_and_dagger" then
+                    --print("eval call")
+                    G.E_MANAGER:add_event(Event({
+                        trigger = "after", 
+                        --delay = 0.1, 
+                        func = function()
+                            c_d_eval(context.card, context)
+                            return true
+                        end
+                    }))
+                end
+            end
+        end
         if context.before and not context.individual and not context.blueprint then
             card.ability.extra.only_spades = true
             --print("context: ")
@@ -1578,7 +1646,8 @@ SMODS.Joker {
     end
 }
 
---TODO: Update Card Art 
+--TODO: Playtesting 
+--Dagger
 SMODS.Joker {
     key = 'dagger',
     loc_txt = {
@@ -1603,6 +1672,23 @@ SMODS.Joker {
     end,
     
     calculate = function(self, card, context)
+        if context.card_added and not context.blueprint then
+            if context.card.config.center.rarity == "Unrivaled_heroic" then
+                -- print("card is joker")
+                -- print(context.card.config.center.key)
+                if context.card.config.center.key ~= "j_Unrivaled_cloak_and_dagger" then
+                    --print("eval call")
+                    G.E_MANAGER:add_event(Event({
+                        trigger = "after", 
+                        --delay = 0.1, 
+                        func = function()
+                            c_d_eval(context.card, context)
+                            return true
+                        end
+                    }))
+                end
+            end
+        end
         if context.before and not context.individual and not context.blueprint then
             local proc = false
             --print("context: ")
@@ -1637,7 +1723,8 @@ SMODS.Joker {
     end
 }
 
---TODO: Update Card Art
+--TODO: Playtesting
+--Cloak & Dagger
 SMODS.Joker {
     key = 'cloak_and_dagger',
     loc_txt = {
@@ -1654,7 +1741,7 @@ SMODS.Joker {
     config = { extra = { neg_prob_denominator = 9, poly_prob_denominator = 2 , flag = false, only_s_and_c = true, contains_hand = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
-    pos = { x = 3, y = 2 },
+    pos = { x = 2, y = 2 },
     cost = 16,
     blueprint_compat = false, 
     eternal_compat = true,
