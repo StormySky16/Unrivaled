@@ -3,8 +3,10 @@
 --- MOD_ID: Unrivaled
 --- MOD_AUTHOR: [StormySky16]
 --- MOD_DESCRIPTION: Marvel Rivals Jokers Mod
---- MOD_VERSION: 0.3.0-alpha
+--- MOD_VERSION: 0.4.0-alpha
 --- PREFIX: Unrivaled
+--- BADGE_COLOR: d0181b
+
 
 --Creates an atlas for cards to use
 SMODS.Atlas {
@@ -1232,6 +1234,10 @@ SMODS.Joker {
             "If the played hand clears the {C:attention}Blind's{}",
             "required chips, level up the corresponding hand by {C:attention}#11#{}",
             "{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips, {X:mult,C:white}x#3# {C:inactive} mult)"
+        },
+        unlock = {
+            "Reunite the members of the",
+            "{C:attention}Fantastic Four{}"
         }
     },
     config = { extra = { chips = 0, chip_mod = 400, Xmult = 1, Xmult_mod = 4, played_hand_size_threshold = 4, 
@@ -1242,7 +1248,9 @@ SMODS.Joker {
     cost = 16,
     blueprint_compat = true,
     eternal_compat = true,
-    --unlocked = true,
+    unlocked = false,
+    unlock_condition = {type = "team_up"},
+    discovered = false,
     
     loc_vars =  function(self, info_queue, card)
         return { vars = {card.ability.extra.chips, card.ability.extra.chip_mod, card.ability.extra.Xmult, 
@@ -1392,6 +1400,9 @@ SMODS.Joker {
             G.GAME.pool_flags.fantastic_four = false
             print("flag unchecked")
         end
+    end,
+    check_for_unlock = function(self, card)
+        return card.discovered
     end,
     in_pool = function(self, card)
         return false
@@ -1736,6 +1747,9 @@ SMODS.Joker {
             "add {C:dark_edition}Negative{} to a random joker and",
             "scored cards with {C:clubs}Club{} suit have",
             "a {C:green}#3# in #2#{} chance to become {C:dark_edition}Polychrome{}"
+        },
+        unlock = {
+            "Reunite {C:attention}Cloak{} and {C:attention}Dagger{}"
         }
     },
     config = { extra = { neg_prob_denominator = 9, poly_prob_denominator = 2 , flag = false, only_s_and_c = true, contains_hand = false} },
@@ -1745,7 +1759,9 @@ SMODS.Joker {
     cost = 16,
     blueprint_compat = false, 
     eternal_compat = true,
-    --unlocked = true,
+    unlocked = false,
+    unlock_condition = {type = "team_up"},
+    discovered = false,
     
     loc_vars =  function(self, info_queue, card)
         return { vars = {card.ability.extra.neg_prob_denominator, card.ability.extra.poly_prob_denominator, G.GAME.probabilities.normal, card.ability.extra.flag, card.ability.extra.only_s_and_c, card.ability.extra.contains_hand} }
@@ -1833,6 +1849,9 @@ SMODS.Joker {
                 end
             end
         end
+    end,
+    check_for_unlock = function(self, card)
+        return card.discovered
     end,
     in_pool = function(self, card)
         return false
