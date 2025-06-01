@@ -865,12 +865,23 @@ SMODS.Joker {
     
     calculate = function(self, card, context)
         local eval = function(card) return (card.ability.extra.cleared_bosses >= 2) end
+        local spriteCheck = function()
+            if eval(card) then 
+                print(eval(card))
+                card.children.center:set_sprite_pos({x = 5, y = 0})
+            else 
+                print(eval(card))
+                card.children.center:set_sprite_pos({x = 4, y = 0})
+            end
+        end
+        
         if context.end_of_round and not context.blueprint and context.main_eval then
             juice_card_until(card, eval, true)
             if G.GAME.blind.boss then
                 print('plus 1 boss clear')
                 card.ability.extra.cleared_bosses = card.ability.extra.cleared_bosses + 1
             end
+            spriteCheck()
             if (card.ability.extra.boss_requirement <= card.ability.extra.cleared_bosses) then
                 return {
                     message = localize('k_active_ex'),
@@ -885,6 +896,7 @@ SMODS.Joker {
                     colour = G.C.FILTER,
                 }
             end
+            
         end
         if context.selling_self and (card.ability.extra.cleared_bosses >= card.ability.extra.boss_requirement) and not context.blueprint then
             juice_card_until(card, eval, true)
@@ -929,7 +941,7 @@ SMODS.Joker {
     config = { extra = { chips = 0, chip_gain = 50, played_hand_size_threshold = 4, flag = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
-    pos = { x = 5, y = 0 },
+    pos = { x = 0, y = 1 },
     no_pool_flag = "fantastic_four",
     cost = 8,
     blueprint_compat = true,
@@ -995,7 +1007,7 @@ SMODS.Joker {
     config = { extra = {discarded_hand_size_threshold = 4, flag = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
-    pos = { x = 0, y = 1 },
+    pos = { x = 1, y = 1 },
     no_pool_flag = "fantastic_four",
     cost = 8,
     blueprint_compat = true,
@@ -1064,7 +1076,7 @@ SMODS.Joker {
     config = { extra = {played_hand_size_threshold = 4, flag = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
-    pos = { x = 1, y = 1 },
+    pos = { x = 2, y = 1 },
     no_pool_flag = "fantastic_four",
     cost = 8,
     blueprint_compat = false,
@@ -1135,7 +1147,7 @@ SMODS.Joker {
                four = false, flag = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
-    pos = { x = 2, y = 1 },
+    pos = { x = 3, y = 1 },
     no_pool_flag = "fantastic_four",
     cost = 8,
     blueprint_compat = true,
@@ -1244,7 +1256,7 @@ SMODS.Joker {
                         target_card_id = 4, four = true, shielded = false, threshold = 100, most_recent_hand = 0, hand_level_mod = 2} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
-    pos = { x = 3, y = 1 },
+    pos = { x = 4, y = 1 },
     cost = 16,
     blueprint_compat = true,
     eternal_compat = true,
@@ -1425,7 +1437,7 @@ SMODS.Joker {
     config = { extra = { tarot_count = 0, tarot_requirement = 5, juiced = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
-    pos = { x = 4, y = 1 },
+    pos = { x = 5, y = 1 },
     cost = 6,
     blueprint_compat = false,
     eternal_compat = false,
@@ -1502,7 +1514,7 @@ SMODS.Joker {
     config = { extra = { played_hand_size_threshold = 3 , repetitions = 3, only_clubs = true} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
-    pos = { x = 5, y = 1 },
+    pos = { x = 0, y = 2 },
     cost = 6,
     blueprint_compat = true, 
     eternal_compat = true,
@@ -1573,7 +1585,7 @@ SMODS.Joker {
     config = { extra = { neg_prob_denominator = 18 , only_spades = true, flag = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
-    pos = { x = 0, y = 2 },
+    pos = { x = 1, y = 2 },
     cost = 8,
     blueprint_compat = false, 
     eternal_compat = true,
@@ -1613,7 +1625,7 @@ SMODS.Joker {
                 end
             end
         end
-        if context.after and card.ability.extra.only_spades then
+        if context.after and card.ability.extra.only_spades and not context.blueprint then
             local eligible_strength_jokers = {}
             print("check jokers")
             --play_sound("Unrivaled_tremblebeforebast", 1, 2.5)
@@ -1672,7 +1684,7 @@ SMODS.Joker {
     config = { extra = { poly_prob_denominator = 4 , flag = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
-    pos = { x = 1, y = 2 },
+    pos = { x = 2, y = 2 },
     cost = 8,
     blueprint_compat = false, 
     eternal_compat = true,
@@ -1755,7 +1767,7 @@ SMODS.Joker {
     config = { extra = { neg_prob_denominator = 9, poly_prob_denominator = 2 , flag = false, only_s_and_c = true, contains_hand = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
-    pos = { x = 2, y = 2 },
+    pos = { x = 3, y = 2 },
     cost = 16,
     blueprint_compat = false, 
     eternal_compat = true,
@@ -1813,10 +1825,9 @@ SMODS.Joker {
                 end
             end    
         end
-        if context.after and card.ability.extra.only_s_and_c and card.ability.extra.contains_hand then
+        if context.after and not card.ability.extra.only_s_and_c and card.ability.extra.contains_hand and not context.blueprint then
             local eligible_strength_jokers = {}
             print("check jokers")
-            --play_sound("Unrivaled_tremblebeforebast", 1, 2.5)
             for k, v in pairs(G.jokers.cards) do
                 if v.ability.set == 'Joker' and (not v.edition) and v ~= card then
                     table.insert(eligible_strength_jokers, v)
