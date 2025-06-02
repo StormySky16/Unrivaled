@@ -474,6 +474,7 @@ fantastic_eval = function(card, context)
         if iw and ht and tt and mf and not card.ability.extra.flag then
             card.ability.extra.flag = true
             SMODS.add_card({set = 'Joker', area = G.jokers, key = "j_Unrivaled_fantastic_four"})
+            G.GAME.pool_flags.fantastic_four = true
         end
     end
 end
@@ -535,6 +536,7 @@ c_d_eval = function(card, context)
         if c and d and not card.ability.extra.flag then
             card.ability.extra.flag = true
             SMODS.add_card({set = 'Joker', area = G.jokers, key = "j_Unrivaled_cloak_and_dagger"})
+            G.GAME.pool_flags.cloak_and_dagger_reunited = true
         end
     end
 end
@@ -1258,6 +1260,7 @@ SMODS.Joker {
     atlas = 'Unrivaled',
     pos = { x = 4, y = 1 },
     cost = 16,
+    yes_pool_flag = 'cloak_and_dagger_reunited',
     blueprint_compat = true,
     eternal_compat = true,
     unlocked = false,
@@ -1587,6 +1590,7 @@ SMODS.Joker {
     atlas = 'Unrivaled',
     pos = { x = 1, y = 2 },
     cost = 8,
+    no_pool_flag = 'cloak_and_dagger_reunited',
     blueprint_compat = false, 
     eternal_compat = true,
     --unlocked = true,
@@ -1686,6 +1690,7 @@ SMODS.Joker {
     atlas = 'Unrivaled',
     pos = { x = 2, y = 2 },
     cost = 8,
+    no_pool_flag = 'cloak_and_dagger_reunited',
     blueprint_compat = false, 
     eternal_compat = true,
     --unlocked = true,
@@ -1769,6 +1774,7 @@ SMODS.Joker {
     atlas = 'Unrivaled',
     pos = { x = 3, y = 2 },
     cost = 16,
+    yes_pool_flag = 'cloak_and_dagger_reunited',
     blueprint_compat = false, 
     eternal_compat = true,
     unlocked = false,
@@ -1837,7 +1843,7 @@ SMODS.Joker {
                 print("check prob")
                 local eligible_card = pseudorandom_element(eligible_strength_jokers, pseudoseed("darkforce"))
                 if pseudorandom("darkforce") <= (G.GAME.probabilities.normal / card.ability.extra.neg_prob_denominator) then 
-                    local voice_line = "Unrivaled_"..pseudorandom_element(cloak_success_lines, pseudoseed("darkfoce"))
+                    local voice_line = "Unrivaled_"..pseudorandom_element(cloak_success_lines, pseudoseed("darkforce"))
                     G.E_MANAGER:add_event(Event({
                         trigger = "after", 
                         --delay = 0.1, 
@@ -1849,7 +1855,7 @@ SMODS.Joker {
                             return true end 
                     }))
                 else 
-                    local voice_line = "Unrivaled_"..pseudorandom_element(cloak_fail_lines, pseudoseed("darkfoce"))
+                    local voice_line = "Unrivaled_"..pseudorandom_element(cloak_fail_lines, pseudoseed("darkforce"))
                     return{
                         message_card = card,
                         message =  "Nope!",
@@ -1863,10 +1869,10 @@ SMODS.Joker {
     end,
     check_for_unlock = function(self, card)
         return card.discovered
-    end,
-    in_pool = function(self, card)
-        return false
     end
+    -- in_pool = function(self, card)
+    --     return false
+    -- end
 }
 
 -- function return_JokerValues() -- not used, just here to demonstrate how you could return values from a joker
