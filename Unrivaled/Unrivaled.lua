@@ -1452,6 +1452,15 @@ SMODS.Joker {
     
     calculate = function(self, card, context)
         local eval = function(card) return (card.ability.extra.tarot_count >= card.ability.extra.tarot_requirement) end
+        local spriteCheck = function()
+            if eval(card) then 
+                print(eval(card))
+                card.children.center:set_sprite_pos({x = 5, y = 1})
+            else 
+                print(eval(card))
+                card.children.center:set_sprite_pos({x = 0, y = 2})
+            end
+        end
         if context.using_consumeable and context.consumeable.ability.set == "Tarot" and not context.blueprint then
             card.ability.extra.tarot_count = card.ability.extra.tarot_count + 1
             G.E_MANAGER:add_event(Event({
@@ -1462,6 +1471,7 @@ SMODS.Joker {
                 juice_card_until(card, eval, true)
                 card.ability.extra.juiced = eval(card)
             end
+            spriteCheck()
             if (card.ability.extra.tarot_count >= card.ability.extra.tarot_requirement) then
                 if card.ability.extra.juiced and card.ability.extra.tarot_count > card.ability.extra.tarot_requirement then
                     return {
@@ -1517,7 +1527,7 @@ SMODS.Joker {
     config = { extra = { played_hand_size_threshold = 3 , repetitions = 3, only_clubs = true} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
-    pos = { x = 0, y = 2 },
+    pos = { x = 1, y = 2 },
     cost = 6,
     blueprint_compat = true, 
     eternal_compat = true,
@@ -1588,7 +1598,7 @@ SMODS.Joker {
     config = { extra = { neg_prob_denominator = 18 , only_spades = true, flag = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
-    pos = { x = 1, y = 2 },
+    pos = { x = 2, y = 2 },
     cost = 8,
     no_pool_flag = 'cloak_and_dagger_reunited',
     blueprint_compat = false, 
@@ -1688,7 +1698,7 @@ SMODS.Joker {
     config = { extra = { poly_prob_denominator = 4 , flag = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
-    pos = { x = 2, y = 2 },
+    pos = { x = 3, y = 2 },
     cost = 8,
     no_pool_flag = 'cloak_and_dagger_reunited',
     blueprint_compat = false, 
@@ -1772,7 +1782,7 @@ SMODS.Joker {
     config = { extra = { neg_prob_denominator = 9, poly_prob_denominator = 2 , flag = false, only_s_and_c = true, contains_hand = false} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
-    pos = { x = 3, y = 2 },
+    pos = { x = 4, y = 2 },
     cost = 16,
     yes_pool_flag = 'cloak_and_dagger_reunited',
     blueprint_compat = false, 
