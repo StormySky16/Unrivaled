@@ -1453,7 +1453,7 @@ SMODS.Joker {
     calculate = function(self, card, context)
         local eval = function(card) return (card.ability.extra.tarot_count >= card.ability.extra.tarot_requirement) end
         local spriteCheck = function()
-            if eval(card) then 
+            if not eval(card) then 
                 print(eval(card))
                 card.children.center:set_sprite_pos({x = 5, y = 1})
             else 
