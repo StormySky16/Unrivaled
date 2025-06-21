@@ -541,6 +541,11 @@ c_d_eval = function(card, context)
     end
 end
 
+
+SMODS.current_mod.process_loc_text = function()
+    G.localization.misc.dictionary.Unrivaled_adam_warlock = "Saved by Adam Warlock" -- assigning to G.localization directly
+end
+
 --Winter Soldier
 SMODS.Joker { --TODO: See if the sprite change timing issue can be fixed
     key = 'winter_soldier',
@@ -1490,8 +1495,6 @@ SMODS.Joker {
             end
         end
         if context.game_over and card.ability.extra.tarot_count >= card.ability.extra.tarot_requirement and not context.blueprint then
-            G.GAME.current_round.usesavedtext = true
-			G.GAME.current_round.savedtext = "Saved by Adam Warlock"
             G.E_MANAGER:add_event(Event({
                 func = function()
                     G.hand_text_area.blind_chips:juice_up()
@@ -1503,6 +1506,7 @@ SMODS.Joker {
             }))         
             return { 
                 saved = true,
+                saved =  'Unrivaled_adam_warlock',
                 message = "Born Again!",
                 pitch = 1,
                 volume = 2,
