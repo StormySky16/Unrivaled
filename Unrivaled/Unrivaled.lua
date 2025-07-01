@@ -930,6 +930,93 @@ SMODS.Joker {
     end
 }
 
+--Adam Warlock
+SMODS.Joker { 
+    key = 'adam_warlock',
+    loc_txt = {
+        name = "Adam Warlock",
+        text = {
+            "Prevents Death if at least",
+            "{C:attention}#2# {}{C:tarot}Tarot {}cards are used",
+            "after obtaining this Joker",
+            "{C:red}self destructs{}", 
+            "{C:inactive}(Currently {C:attention}#1#{}{C:inactive} Tarot cards used)"
+        }
+    },
+    config = { extra = { tarot_count = 0, tarot_requirement = 5, juiced = false} },
+    rarity = "Unrivaled_heroic",
+    atlas = 'Unrivaled',
+    pos = { x = 5, y = 1 },
+    cost = 6,
+    blueprint_compat = false,
+    eternal_compat = false,
+    --unlocked = true,
+    
+    loc_vars =  function(self, info_queue, card)
+        return { vars = {card.ability.extra.tarot_count, card.ability.extra.tarot_requirement, card.ability.extra.juiced} }
+    end,
+    
+    calculate = function(self, card, context)
+        local eval = function(card) return (card.ability.extra.tarot_count >= card.ability.extra.tarot_requirement) end
+        local spriteCheck = function()
+            if not eval(card) then 
+                print(eval(card))
+                card.children.center:set_sprite_pos({x = 5, y = 1})
+            else 
+                print(eval(card))
+                card.children.center:set_sprite_pos({x = 0, y = 2})
+            end
+        end
+        if context.using_consumeable and context.consumeable.ability.set == "Tarot" and not context.blueprint then
+            card.ability.extra.tarot_count = card.ability.extra.tarot_count + 1
+            G.E_MANAGER:add_event(Event({
+                func = function() card_eval_status_text(card, 'extra', nil, nil, nil, 
+                {message = card.ability.extra.tarot_count.."/"..card.ability.extra.tarot_requirement}); return true
+                end}))
+            if not card.ability.extra.juiced then 
+                juice_card_until(card, eval, true)
+                card.ability.extra.juiced = eval(card)
+            end
+            spriteCheck()
+            if (card.ability.extra.tarot_count >= card.ability.extra.tarot_requirement) then
+                if card.ability.extra.juiced and card.ability.extra.tarot_count > card.ability.extra.tarot_requirement then
+                    return {
+                        message = localize('k_active_ex'),
+                        colour = G.C.FILTER
+                    }
+                else
+                    return {
+                        message = localize('k_active_ex'),
+                        colour = G.C.FILTER,
+                        pitch = 1,
+                        volume = 2,
+                        sound = "Unrivaled_unlimitedcosmicmight"
+                    }
+                end
+            end
+        end
+        if context.game_over and card.ability.extra.tarot_count >= card.ability.extra.tarot_requirement and not context.blueprint then
+            G.E_MANAGER:add_event(Event({
+                func = function()
+                    G.hand_text_area.blind_chips:juice_up()
+                    G.hand_text_area.game_chips:juice_up()
+                    play_sound('tarot1')
+                    card:start_dissolve()
+                    return true
+                end
+            }))         
+            return { 
+                saved = true,
+                saved =  'Unrivaled_adam_warlock',
+                message = "Born Again!",
+                pitch = 1,
+                volume = 2,
+                sound = "Unrivaled_bornagain"
+        }
+        end
+    end
+}
+
 --Fantastic Four Jokers need to be updated to address edge case of debuffed Jokers and Duplicated Jokers--
 --Tentatively Complete!
 
@@ -1426,93 +1513,6 @@ SMODS.Joker {
     end,
     in_pool = function(self, card)
         return false
-    end
-}
-
---Adam Warlock
-SMODS.Joker { 
-    key = 'adam_warlock',
-    loc_txt = {
-        name = "Adam Warlock",
-        text = {
-            "Prevents Death if at least",
-            "{C:attention}#2# {}{C:tarot}Tarot {}cards are used",
-            "after obtaining this Joker",
-            "{C:red}self destructs{}", 
-            "{C:inactive}(Currently {C:attention}#1#{}{C:inactive} Tarot cards used)"
-        }
-    },
-    config = { extra = { tarot_count = 0, tarot_requirement = 5, juiced = false} },
-    rarity = "Unrivaled_heroic",
-    atlas = 'Unrivaled',
-    pos = { x = 5, y = 1 },
-    cost = 6,
-    blueprint_compat = false,
-    eternal_compat = false,
-    --unlocked = true,
-    
-    loc_vars =  function(self, info_queue, card)
-        return { vars = {card.ability.extra.tarot_count, card.ability.extra.tarot_requirement, card.ability.extra.juiced} }
-    end,
-    
-    calculate = function(self, card, context)
-        local eval = function(card) return (card.ability.extra.tarot_count >= card.ability.extra.tarot_requirement) end
-        local spriteCheck = function()
-            if not eval(card) then 
-                print(eval(card))
-                card.children.center:set_sprite_pos({x = 5, y = 1})
-            else 
-                print(eval(card))
-                card.children.center:set_sprite_pos({x = 0, y = 2})
-            end
-        end
-        if context.using_consumeable and context.consumeable.ability.set == "Tarot" and not context.blueprint then
-            card.ability.extra.tarot_count = card.ability.extra.tarot_count + 1
-            G.E_MANAGER:add_event(Event({
-                func = function() card_eval_status_text(card, 'extra', nil, nil, nil, 
-                {message = card.ability.extra.tarot_count.."/"..card.ability.extra.tarot_requirement}); return true
-                end}))
-            if not card.ability.extra.juiced then 
-                juice_card_until(card, eval, true)
-                card.ability.extra.juiced = eval(card)
-            end
-            spriteCheck()
-            if (card.ability.extra.tarot_count >= card.ability.extra.tarot_requirement) then
-                if card.ability.extra.juiced and card.ability.extra.tarot_count > card.ability.extra.tarot_requirement then
-                    return {
-                        message = localize('k_active_ex'),
-                        colour = G.C.FILTER
-                    }
-                else
-                    return {
-                        message = localize('k_active_ex'),
-                        colour = G.C.FILTER,
-                        pitch = 1,
-                        volume = 2,
-                        sound = "Unrivaled_unlimitedcosmicmight"
-                    }
-                end
-            end
-        end
-        if context.game_over and card.ability.extra.tarot_count >= card.ability.extra.tarot_requirement and not context.blueprint then
-            G.E_MANAGER:add_event(Event({
-                func = function()
-                    G.hand_text_area.blind_chips:juice_up()
-                    G.hand_text_area.game_chips:juice_up()
-                    play_sound('tarot1')
-                    card:start_dissolve()
-                    return true
-                end
-            }))         
-            return { 
-                saved = true,
-                saved =  'Unrivaled_adam_warlock',
-                message = "Born Again!",
-                pitch = 1,
-                volume = 2,
-                sound = "Unrivaled_bornagain"
-        }
-        end
     end
 }
 
