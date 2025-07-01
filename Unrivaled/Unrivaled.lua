@@ -782,7 +782,7 @@ SMODS.Joker {
             "{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips, {X:mult,C:white}x#2# {C:inactive} mult)"
         }
     },
-    config = { extra = { chips = 0, Xmult = 1, chip_gain = 4, Xmult_mod = 0.25} },
+    config = { extra = { chips = 0, Xmult = 1, chip_gain = 4, Xmult_mod = 0.2} },
     rarity = "Unrivaled_heroic",
     atlas = 'Unrivaled',
     pos = { x = 3, y = 0 },
