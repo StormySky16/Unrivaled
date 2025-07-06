@@ -1845,7 +1845,7 @@ SMODS.Joker {
                 end
             end    
         end
-        if context.after and not card.ability.extra.only_s_and_c and card.ability.extra.contains_hand and not context.blueprint then
+        if context.after and card.ability.extra.only_s_and_c and card.ability.extra.contains_hand and not context.blueprint then
             local eligible_strength_jokers = {}
             print("check jokers")
             for k, v in pairs(G.jokers.cards) do
